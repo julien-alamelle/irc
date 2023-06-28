@@ -11,7 +11,7 @@
 class Server
 {
 public:
-	Server(int port, std::string password);
+	Server(int port, const std::string& password);
 	void start();
 
 private:
@@ -25,6 +25,25 @@ private:
 	void newMessage(int clientNumber);
 	void disconnexion(int clientNumber);
 	void handleMessage(char *buffer, int clientNumber);
+
+/* EXCEPTIONS */
+public:
+	class SocketError: public std::exception {
+		virtual const char*	what() const throw();
+	};
+
+	class BindError: public std::exception {
+		virtual const char*	what() const throw();
+	};
+
+	class ListenError: public std::exception {
+		virtual const char*	what() const throw();
+	};
+
+	class PollError: public std::exception {
+		virtual const char*	what() const throw();
+	};
+
 };
 
 

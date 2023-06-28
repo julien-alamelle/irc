@@ -13,7 +13,7 @@ int main(int argc, char **argv)
 {
 	if (argc != 3)
 	{
-		std::cerr << "Invalid use, use ft_irc <port number> <password>" << std::endl;
+		std::cerr << "Invalid use, use ft_irc <port> <password>" << std::endl;
 		return (1);
 	}
 
@@ -32,7 +32,9 @@ int main(int argc, char **argv)
 		server.start();
 	}
 	catch (std::exception &e)
-	{}
+	{
+		std::cerr << e.what() << std::endl;
+	}
 }
 
 static int getPort(std::string str)

@@ -1,13 +1,10 @@
 #include "../header/Server.hpp"
 
-Server::Server(int port, std::string password) : _port(port), _password(password)
+Server::Server(int port, const std::string& password) : _port(port), _password(password)
 {
 	_serverSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if (_serverSocket == -1)
-	{
-		std::cerr << "Error while creating socket." << std::endl;
-		throw std::exception();
-	}
+		throw SocketError();
 
 	_serverAddress.sin_family = AF_INET;
 	_serverAddress.sin_addr.s_addr = INADDR_ANY;
@@ -17,14 +14,13 @@ Server::Server(int port, std::string password) : _port(port), _password(password
 	{
 		close(_serverSocket);
 		std::cerr << "Erreur when binding socket to server address." << std::endl;
-		throw std::exception();
+		throw BindError();
 	}
 
 	if (listen(_serverSocket, 5) == -1)
 	{
 		close(_serverSocket);
-		std::cerr << "Erreur when binding socket to server address." << std::endl;
-		throw std::exception();
+		throw ListenError();
 	}
 
 	pollfd server = {_serverSocket, POLLIN, 0};
@@ -37,12 +33,12 @@ void Server::start()
 
 	while (42)
 	{
+		std::cout << "TEST" << std::endl;
 		if (poll(_clientSockets.data(), _clientSockets.size(), -1) <= 0)
 		{
-			std::cerr << "Error on poll function." << std::endl;
-			throw std::exception();
+			close(_serverSocket);
+			throw PollError();
 		}
-//		std::cout << "POLL " << poll(_clientSockets.data(), _clientSockets.size(), -1) << std::endl;
 
 		for (size_t i = 0; i < _clientSockets.size(); ++i)
 		{
@@ -101,4 +97,28 @@ void Server::handleMessage(char *buffer, int clientNumber)
 	std::cout << receivedData;
 	// To send message to client :
 	// send(_clientSockets[clientNumber].fd, response.c_str(), response.size(), 0);
+	(void) clientNumber;
+}
+
+
+/* EXCEPTIONS */
+
+const char *Server::SocketError::what() const throw()
+{
+	return "Error while creating socket.";
+}
+
+const char *Server::BindError::what() const throw()
+{
+	return "Error when binding.";
+}
+
+const char *Server::ListenError::what() const throw()
+{
+	return "Error when listening.";
+}
+
+const char *Server::PollError::what() const throw()
+{
+	return "Error on poll.";
 }
