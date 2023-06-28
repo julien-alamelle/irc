@@ -13,11 +13,10 @@ Server::Server(int port, const std::string& password) : _port(port), _password(p
 	if (bind(_serverSocket, reinterpret_cast<struct sockaddr *>(&_serverAddress), sizeof(_serverAddress)) == -1)
 	{
 		close(_serverSocket);
-		std::cerr << "Erreur when binding socket to server address." << std::endl;
 		throw BindError();
 	}
 
-	if (listen(_serverSocket, 5) == -1)
+	if (listen(_serverSocket, SOMAXCONN) == -1)
 	{
 		close(_serverSocket);
 		throw ListenError();
@@ -33,7 +32,6 @@ void Server::start()
 
 	while (42)
 	{
-		std::cout << "TEST" << std::endl;
 		if (poll(_clientSockets.data(), _clientSockets.size(), -1) <= 0)
 		{
 			close(_serverSocket);
@@ -61,7 +59,7 @@ void Server::newConnexion()
 	if (clientSocket < 0)
 	{
 		std::cerr << "Error on new connexion." << std::endl;
-		throw std::exception();
+		throw ConnexionError();
 	}
 
 	pollfd newClient = {clientSocket, POLLIN, 0};
@@ -73,11 +71,10 @@ void Server::newConnexion()
 void Server::newMessage(int clientNumber)
 {
 	std::cout << "MSG" << std::endl;
-	char buffer[1024];
+	char buffer[512];
 	memset(buffer, 0, sizeof(buffer));
 
-	size_t bytesRead = recv(_clientSockets[clientNumber].fd, buffer, sizeof(buffer) - 1, 0);
-	if (bytesRead <= 0)
+	if (recv(_clientSockets[clientNumber].fd, buffer, sizeof(buffer) - 1, 0) <= 0)
 		disconnexion(clientNumber);
 	else
 		handleMessage(buffer, clientNumber);
@@ -93,12 +90,17 @@ void Server::disconnexion(int clientNumber)
 
 void Server::handleMessage(char *buffer, int clientNumber)
 {
+	std::string response = "pong\n";
 	std::string receivedData(buffer);
 	std::cout << receivedData;
 	// To send message to client :
-	// send(_clientSockets[clientNumber].fd, response.c_str(), response.size(), 0);
-	(void) clientNumber;
+	if (receivedData == "ping\n")
+	{
+		std::cout << "pong" << std::endl;
+		send(_clientSockets[clientNumber].fd, response.c_str(), response.size(), 0);
+	}
 }
+
 
 
 /* EXCEPTIONS */
@@ -121,4 +123,9 @@ const char *Server::ListenError::what() const throw()
 const char *Server::PollError::what() const throw()
 {
 	return "Error on poll.";
+}
+
+const char *Server::ConnexionError::what() const throw()
+{
+	return "Error on new connexion.";
 }

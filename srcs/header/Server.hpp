@@ -5,8 +5,10 @@
 #include <poll.h>
 #include <netinet/in.h>
 #include <iostream>
-#include <string.h>
+#include <cstring>
 #include <unistd.h>
+
+#include "User.hpp"
 
 class Server
 {
@@ -41,6 +43,10 @@ public:
 	};
 
 	class PollError: public std::exception {
+		virtual const char*	what() const throw();
+	};
+
+	class ConnexionError: public std::exception {
 		virtual const char*	what() const throw();
 	};
 
