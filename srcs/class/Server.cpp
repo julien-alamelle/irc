@@ -15,6 +15,14 @@ Server::Server(int port, std::string password) : _port(port), _password(password
 
 	if (bind(_serverSocket, reinterpret_cast<struct sockaddr *>(&_serverAddress), sizeof(_serverAddress)) == -1)
 	{
+		close(_serverSocket);
+		std::cerr << "Erreur when binding socket to server address." << std::endl;
+		throw std::exception();
+	}
+
+	if (listen(_serverSocket, 5) == -1)
+	{
+		close(_serverSocket);
 		std::cerr << "Erreur when binding socket to server address." << std::endl;
 		throw std::exception();
 	}
@@ -29,11 +37,12 @@ void Server::start()
 
 	while (42)
 	{
-		if (!poll(_clientSockets.data(), _clientSockets.size(), -1))
+		if (poll(_clientSockets.data(), _clientSockets.size(), -1) <= 0)
 		{
 			std::cerr << "Error on poll function." << std::endl;
 			throw std::exception();
 		}
+//		std::cout << "POLL " << poll(_clientSockets.data(), _clientSockets.size(), -1) << std::endl;
 
 		for (size_t i = 0; i < _clientSockets.size(); ++i)
 		{
@@ -47,6 +56,7 @@ void Server::start()
 
 void Server::newConnexion()
 {
+	std::cout << "CONNEXION" << std::endl;
 	sockaddr_in clientAddress = {};
 	socklen_t clientAddressLength = sizeof(clientAddress);
 
@@ -66,6 +76,7 @@ void Server::newConnexion()
 
 void Server::newMessage(int clientNumber)
 {
+	std::cout << "MSG" << std::endl;
 	char buffer[1024];
 	memset(buffer, 0, sizeof(buffer));
 
@@ -73,7 +84,7 @@ void Server::newMessage(int clientNumber)
 	if (bytesRead <= 0)
 		disconnexion(clientNumber);
 	else
-		handleMessage(buffer);
+		handleMessage(buffer, clientNumber);
 }
 
 void Server::disconnexion(int clientNumber)
@@ -84,9 +95,10 @@ void Server::disconnexion(int clientNumber)
 	std::cout << "Disconnected client. Socket : " << _clientSockets[clientNumber].fd << std::endl;
 }
 
-void Server::handleMessage(char *buffer)
+void Server::handleMessage(char *buffer, int clientNumber)
 {
 	std::string receivedData(buffer);
-	// Répondez au client si nécessaire
-	// send(_clientSockets[i].fd, response.c_str(), response.size(), 0);
+	std::cout << receivedData;
+	// To send message to client :
+	// send(_clientSockets[clientNumber].fd, response.c_str(), response.size(), 0);
 }

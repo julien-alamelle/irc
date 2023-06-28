@@ -24,7 +24,7 @@ private:
 	void newConnexion();
 	void newMessage(int clientNumber);
 	void disconnexion(int clientNumber);
-	void handleMessage(char *buffer);
+	void handleMessage(char *buffer, int clientNumber);
 };
 
 
