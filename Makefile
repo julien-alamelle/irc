@@ -1,7 +1,7 @@
 #update on every project
 
 CFILES=main.cpp Client.cpp 
-BIN=irc_server
+BIN=ircserv
 
 #update to match c or cpp
 
