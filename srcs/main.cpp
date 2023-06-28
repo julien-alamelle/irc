@@ -26,8 +26,13 @@ int main(int argc, char **argv)
 
 	std::string password = std::string(argv[2]);
 
-	Server server = Server(port, password);
-	server.start();
+	try
+	{
+		Server server = Server(port, password);
+		server.start();
+	}
+	catch (std::exception &e)
+	{}
 }
 
 static int getPort(std::string str)
