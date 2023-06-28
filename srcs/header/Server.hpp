@@ -2,6 +2,7 @@
 #define SERVER_HPP
 
 #include <vector>
+#include <map>
 #include <poll.h>
 #include <netinet/in.h>
 #include <iostream>
@@ -18,6 +19,7 @@ public:
 
 private:
 	std::vector<pollfd>	_clientSockets;
+	std::map<int, User>	_clients;
 	sockaddr_in			_serverAddress;
 	int					_serverSocket;
 	int					_port;
