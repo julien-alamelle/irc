@@ -26,13 +26,13 @@ Server::Server(int port, const std::string& password) : _port(port), _password(p
 	_clientSockets.push_back(server);
 }
 
-void Server::start()
+void Server::start(int &keep)
 {
 	std::cout << "IRC Server awaiting on port " << _port << "." << std::endl;
 
-	while (42)
+	while (keep)
 	{
-		if (poll(_clientSockets.data(), _clientSockets.size(), -1) <= 0)
+		if (poll(_clientSockets.data(), _clientSockets.size(), -1) <= 0 && keep)
 		{
 			close(_serverSocket);
 			throw PollError();
@@ -46,6 +46,7 @@ void Server::start()
 				newMessage((int)i);
 		}
 	}
+	close(_serverSocket);
 }
 
 void Server::newConnexion()

@@ -8,6 +8,9 @@
 #include <vector>
 
 static int getPort(std::string str);
+static void signalHandler(int signum);
+
+int keep = 42;
 
 int main(int argc, char **argv)
 {
@@ -26,10 +29,12 @@ int main(int argc, char **argv)
 
 	std::string password = std::string(argv[2]);
 
+	signal(SIGINT, signalHandler);
+
 	try
 	{
 		Server server = Server(port, password);
-		server.start();
+		server.start(keep);
 	}
 	catch (std::exception &e)
 	{
@@ -48,4 +53,13 @@ static int getPort(std::string str)
 	std::istringstream s(str);
 	s >> value;
 	return (static_cast<int>(value));
+}
+
+static void signalHandler(int signum)
+{
+	if (signum == SIGINT || signum == SIGQUIT)
+	{
+		std::cout << std::endl << "Stopping server (signal " << signum << ")." << std::endl;
+		keep = 0;
+	}
 }
