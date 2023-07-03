@@ -9,13 +9,13 @@
 #include <cstring>
 #include <unistd.h>
 
-#include "User.hpp"
+#include "../header/User.hpp"
 
 class Server
 {
 public:
 	Server(int port, const std::string& password);
-	void start();
+	void start(int &keep);
 
 private:
 	std::vector<pollfd>	_clientSockets;
