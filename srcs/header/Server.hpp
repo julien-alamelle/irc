@@ -9,7 +9,8 @@
 #include <cstring>
 #include <unistd.h>
 
-#include "../header/User.hpp"
+#include "User.hpp"
+#include "Channel.hpp"
 
 #define GREEN "\e[32m"
 #define CYAN "\e[34m"
@@ -23,12 +24,13 @@ public:
 	void start(int &keep);
 
 private:
-	std::vector<pollfd>	_clientSockets;
-	std::map<int, User>	_clients;
-	sockaddr_in			_serverAddress;
-	int					_serverSocket;
-	int					_port;
-	std::string			_password;
+	std::vector<pollfd>				_clientSockets;
+	std::map<int, User>				_clients;
+	std::map<std::string, Channel>	_channels; //Name -> Channel
+	sockaddr_in						_serverAddress;
+	int								_serverSocket;
+	int								_port;
+	std::string						_password;
 
 	void newConnexion();
 	void newMessage(int clientNumber);

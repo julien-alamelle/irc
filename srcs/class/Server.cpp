@@ -64,6 +64,7 @@ void Server::newConnexion()
 
 	pollfd newClient = {clientSocket, POLLIN, 0};
 	_clientSockets.push_back(newClient);
+	_clients.insert(std::make_pair(clientSocket, User(clientSocket)));
 
 	std::cout << GREEN << "New connexion. Socket : " << clientSocket << END << std::endl;
 }
@@ -81,17 +82,20 @@ void Server::newMessage(int clientNumber)
 
 void Server::disconnexion(int clientNumber)
 {
-	close(_clientSockets[clientNumber].fd);
-	_clientSockets.erase(_clientSockets.begin() + clientNumber);
+	int fd = _clientSockets[clientNumber].fd;
 
-	std::cout << RED << "Disconnected client. Socket : " << _clientSockets[clientNumber].fd << END << std::endl;
+	close(fd);
+	std::cout << RED << "Disconnected client. Socket : " << _clients.find(fd)->second.getSocket() << END << std::endl;
+
+	_clients.erase(fd);
+	_clientSockets.erase(_clientSockets.begin() + clientNumber);
 }
 
 void Server::handleMessage(char *buffer, int clientNumber)
 {
 	std::string response = "pong\n";
 	std::string receivedData(buffer);
-	std::cout << CYAN << receivedData << END;
+	std::cout << CYAN << _clientSockets[clientNumber].fd << ": " << receivedData << END;
 	// To send message to client :
 	if (receivedData == "ping\n")
 	{

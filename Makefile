@@ -21,7 +21,7 @@ ERASE		=	\e[2K\r
 
 DIR_INCS	=	srcs/header
 SRC_DIR		=	srcs
-SRC_FILES	=	main.cpp class/Server.cpp class/User.cpp #class/Channel.cpp
+SRC_FILES	=	main.cpp class/Server.cpp class/User.cpp class/Channel.cpp
 SRCS		=	$(addprefix $(SRC_DIR)/, $(SRC_FILES))
 DIR_BUILD	=	.build/
 OBJS		=	$(patsubst %.cpp, $(DIR_BUILD)%.o, $(SRCS))
