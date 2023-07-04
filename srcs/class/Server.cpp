@@ -51,7 +51,6 @@ void Server::start(int &keep)
 
 void Server::newConnexion()
 {
-	std::cout << "CONNEXION" << std::endl;
 	sockaddr_in clientAddress = {};
 	socklen_t clientAddressLength = sizeof(clientAddress);
 
@@ -66,12 +65,11 @@ void Server::newConnexion()
 	pollfd newClient = {clientSocket, POLLIN, 0};
 	_clientSockets.push_back(newClient);
 
-	std::cout << "New connexion. Socket : " << clientSocket << std::endl;
+	std::cout << GREEN << "New connexion. Socket : " << clientSocket << END << std::endl;
 }
 
 void Server::newMessage(int clientNumber)
 {
-	std::cout << "MSG" << std::endl;
 	char buffer[512];
 	memset(buffer, 0, sizeof(buffer));
 
@@ -86,14 +84,14 @@ void Server::disconnexion(int clientNumber)
 	close(_clientSockets[clientNumber].fd);
 	_clientSockets.erase(_clientSockets.begin() + clientNumber);
 
-	std::cout << "Disconnected client. Socket : " << _clientSockets[clientNumber].fd << std::endl;
+	std::cout << RED << "Disconnected client. Socket : " << _clientSockets[clientNumber].fd << END << std::endl;
 }
 
 void Server::handleMessage(char *buffer, int clientNumber)
 {
 	std::string response = "pong\n";
 	std::string receivedData(buffer);
-	std::cout << receivedData;
+	std::cout << CYAN << receivedData << END;
 	// To send message to client :
 	if (receivedData == "ping\n")
 	{

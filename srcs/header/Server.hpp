@@ -11,6 +11,11 @@
 
 #include "../header/User.hpp"
 
+#define GREEN "\e[32m"
+#define CYAN "\e[34m"
+#define RED "\e[31m"
+#define END "\e[0m"
+
 class Server
 {
 public:
