@@ -6,6 +6,7 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <signal.h>
 
 static int getPort(std::string str);
 static void signalHandler(int signum);
