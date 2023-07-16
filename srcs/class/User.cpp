@@ -1,6 +1,6 @@
 #include "User.hpp"
 
-User::User(int socket) : _socket(socket), _connectedChannel(nullptr)
+User::User(int socket) : _socket(socket), _connectedChannel(NULL)
 {
 
 }
@@ -23,4 +23,14 @@ const std::string &User::getNickname() const
 Channel *User::getConnectedChannel() const
 {
 	return _connectedChannel;
+}
+
+void User::setPasswordOk()
+{
+	_passwordOk = true;
+}
+
+bool User::isPasswordOk() const
+{
+	return _passwordOk;
 }

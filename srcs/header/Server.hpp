@@ -25,8 +25,8 @@ public:
 
 private:
 	std::vector<pollfd>				_clientSockets;
-	std::map<int, User>				_clients;
-	std::map<std::string, Channel>	_channels; //Name -> Channel
+	std::map<int, User>				_clients;	//fd -> User
+	std::map<std::string, Channel>	_channels;	//Name -> Channel
 	sockaddr_in						_serverAddress;
 	int								_serverSocket;
 	int								_port;

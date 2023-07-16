@@ -20,10 +20,15 @@ public:
 
 	Channel *getConnectedChannel() const;
 
+	void	setPasswordOk();
+	bool isPasswordOk() const;
+
+
 private:
 	int			_socket;
 	std::string	_nickname;
 	Channel 	*_connectedChannel;
+	bool		_passwordOk;
 };
 
 

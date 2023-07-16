@@ -96,6 +96,10 @@ void Server::handleMessage(char *buffer, int clientNumber)
 	std::string response = "pong\n";
 	std::string receivedData(buffer);
 	std::cout << CYAN << _clientSockets[clientNumber].fd << ": " << receivedData << END;
+
+	if (receivedData == "PASS " + _password) //FIXME: do this with the parser
+		_clients.find(clientNumber)->second.setPasswordOk();
+
 	// To send message to client :
 	if (receivedData == "ping\n")
 	{
