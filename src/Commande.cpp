@@ -27,7 +27,7 @@ void	Commande::parse(std::string CMD) {
 	if (*it == ':') {
 		++it;
 		tmp = count(it, CMD.end(), true);
-		this->prefix = CMD.substr(CMD.begin() - it, it - tmp);
+		this->prefix = CMD.substr(it - CMD.begin(), tmp - it);
 		it = tmp;
 		while (*it == ' ')
 			++it;
@@ -35,7 +35,7 @@ void	Commande::parse(std::string CMD) {
 	else this->prefix = std::string();
 	//command
 	tmp = count(it, CMD.end(), true);
-	this->commande = CMD.substr(CMD.begin() - it, it - tmp);
+	this->commande = CMD.substr(it - CMD.begin(), tmp - it);
 	it = tmp;
 	while (*it == ' ')
 		++it;
@@ -44,7 +44,7 @@ void	Commande::parse(std::string CMD) {
 	while (it != CMD.end()) {
 		if (*it == ':') tmp = count(it, CMD.end(), false);
 		else tmp = count(it, CMD.end(), true);
-		this->params.push_back(CMD.substr(CMD.begin() - it, it - tmp));
+		this->params.push_back(CMD.substr(it - CMD.begin(), tmp - it));
 		it = tmp;
 		while (*it == ' ')
 			++it;
