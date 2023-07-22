@@ -6,7 +6,7 @@
 #    By: marobert <marobert@student.42lyon.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/11/28 16:06:19 by marobert          #+#    #+#              #
-#    Updated: 2023/06/27 18:13:26 by marobert         ###   ########.fr        #
+#    Updated: 2023/07/22 15:15:33 by marobert         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,7 +30,7 @@ DEPS_FLAGS	=	-MMD -MP
 CC			=	c++
 RM			=	rm -rf
 CFLAGS		=	-std=c++98 -Wall -Wextra -Werror
-NAME		=	ft_irc
+NAME		=	ircserv
 
 all:		$(NAME)
 
