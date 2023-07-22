@@ -1,4 +1,5 @@
 #include "../header/Server.hpp"
+#include "Commande.hpp"
 
 Server::Server(int port, const std::string& password) : _port(port), _password(password)
 {
@@ -93,10 +94,16 @@ void Server::disconnexion(int clientNumber)
 
 void Server::handleMessage(char *buffer, int clientNumber)
 {
+	Commande cmd;
 	std::string response = "pong\n";
 	std::string receivedData(buffer);
 	std::cout << CYAN << _clientSockets[clientNumber].fd << ": " << receivedData << END;
 
+	cmd.parse(receivedData);
+	response = cmd.toString();	//TODO generate the answer and sent to the right client
+	std::cout << response << std::endl;
+	send(_clientSockets[clientNumber].fd, response.c_str(), response.size(), 0);
+	
 	if (receivedData == "PASS " + _password) //FIXME: do this with the parser
 		_clients.find(clientNumber)->second.setPasswordOk();
 
