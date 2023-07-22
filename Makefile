@@ -30,7 +30,7 @@ DEPS_FLAGS	=	-MMD -MP
 CC			=	c++
 RM			=	rm -rf
 CFLAGS		=	-std=c++98 -Wall -Wextra -Werror
-NAME		=	ircserv
+NAME		=	ft_irc
 
 all:		$(NAME)
 

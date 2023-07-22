@@ -52,5 +52,22 @@ void	Commande::parse(std::string CMD) {
 }
 
 std::string	Commande::toString() {
-	return this->commande;
+	return this->commande + "\n"; //Temporary
+}
+
+
+
+const std::string &Commande::getPrefix() const
+{
+	return prefix;
+}
+
+const std::string &Commande::getCommande() const
+{
+	return commande;
+}
+
+const std::vector<std::string> &Commande::getParams() const
+{
+	return params;
 }

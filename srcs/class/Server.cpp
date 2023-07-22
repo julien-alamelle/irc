@@ -111,8 +111,12 @@ void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 	std::cout << response << std::endl;
 	send(it->fd, response.c_str(), response.size(), 0);
 
-//	if (receivedData == "PASS " + _password) //FIXME: do this with the parser
-//		_clients.find(clientNumber)->second.setPasswordOk();
+	if (cmd.getCommande() == "PASS")
+		if (cmd.getParams()[0] == _password + "\n")
+		{
+			_clients.find(it->fd)->second.setPasswordOk();
+			std::cout << "PASS OK\n"; //Temporary
+		}
 
 	// To send message to client :
 	if (receivedData == "ping\n")
