@@ -110,14 +110,16 @@ void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 
 	size_t newLine;
 	std::string line;
-	
+
 	if (*receivedData.rbegin() != '\n')
 		receivedData += '\n';
 	while ((newLine = receivedData.find('\n')) != std::string::npos)
 	{
-		line = receivedData.substr(0, newLine) + '\n';
+		line = receivedData.substr(0, newLine);
+		if (!line.empty() && *line.rbegin() == '\r')
+			line = line.substr(0, line.size() - 1);
 
-		std::cout << CYAN << it->fd << ": " << line << END;
+		std::cout << CYAN << it->fd << ": " << line << END << std::endl;
 		cmd.parse(line);
 		response = cmd.toString();    //TODO generate the answer and sent to the right client
 		std::cout << response << std::endl;
@@ -126,7 +128,7 @@ void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 		user = &(_clients.find(it->fd)->second);
 		if (cmd.getCommande() == "PASS")
 		{
-			if (cmd.getParams()[0] == _password + "\r\n") // FIXME make this cleaner
+			if (cmd.getParams()[0] == _password) // FIXME make this cleaner
 			{
 				user->setPasswordOk();
 				std::cout << it->fd << ": " << "PASS OK\n"; //debug
@@ -159,7 +161,7 @@ void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 
 /* COMMANDS */
 
-void Server::cmdUser(const Commande& cmd, User *user)
+void Server::cmdUser(const Commande &cmd, User *user)
 {
 	if (cmd.getParams().size() < 4)
 		std::cout << "USER: not enough args " << cmd.getParams().size() << std::endl;
@@ -186,7 +188,8 @@ void Server::cmdNick(const Commande &cmd, User *user)
 	{
 		try
 		{
-			if (cmd.getParams()[0].substr(cmd.getParams()[0].size() - 2) == "\r\n") //FIXME remove this if parser remove these chars first
+			if (cmd.getParams()[0].substr(cmd.getParams()[0].size() - 2) ==
+				"\r\n") //FIXME remove this if parser remove these chars first
 				user->setNickname(cmd.getParams()[0].substr(0, cmd.getParams()[0].size() - 2));
 			else
 				user->setNickname(cmd.getParams()[0]);
