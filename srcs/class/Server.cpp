@@ -1,7 +1,7 @@
 #include "../header/Server.hpp"
 #include "Commande.hpp"
 
-Server::Server(int port, const std::string& password) : _port(port), _password(password)
+Server::Server(int port, const std::string &password) : _port(port), _password(password)
 {
 	_serverSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if (_serverSocket == -1)
@@ -100,32 +100,105 @@ void Server::disconnexion(std::vector<pollfd>::iterator it)
 void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 {
 //	std::cout << "HANDLE MSG\n";
-	Commande cmd;
 
 	std::string response = "pong\n";
 	std::string receivedData(buffer);
-	std::cout << CYAN << it->fd << ": " << receivedData << END;
+//	std::cout << CYAN << "FULL " << it->fd << ": " << receivedData << END;
 
-	cmd.parse(receivedData);
-	response = cmd.toString();	//TODO generate the answer and sent to the right client
-	std::cout << response << std::endl;
-	send(it->fd, response.c_str(), response.size(), 0);
+	Commande cmd;
+	User *user;
 
-	if (cmd.getCommande() == "PASS")
-		if (cmd.getParams()[0] == _password + "\n")
+	size_t newLine;
+	std::string line;
+	
+	if (*receivedData.rbegin() != '\n')
+		receivedData += '\n';
+	while ((newLine = receivedData.find('\n')) != std::string::npos)
+	{
+		line = receivedData.substr(0, newLine) + '\n';
+
+		std::cout << CYAN << it->fd << ": " << line << END;
+		cmd.parse(line);
+		response = cmd.toString();    //TODO generate the answer and sent to the right client
+		std::cout << response << std::endl;
+		send(it->fd, response.c_str(), response.size(), 0);
+
+		user = &(_clients.find(it->fd)->second);
+		if (cmd.getCommande() == "PASS")
 		{
-			_clients.find(it->fd)->second.setPasswordOk();
-			std::cout << "PASS OK\n"; //Temporary
+			if (cmd.getParams()[0] == _password + "\r\n") // FIXME make this cleaner
+			{
+				user->setPasswordOk();
+				std::cout << it->fd << ": " << "PASS OK\n"; //debug
+			}
+		}
+		else if (user->isPasswordOk())
+		{
+//			std::cout << it->fd << ": COMMAND: " << cmd.getCommande() << "|" << std::endl; //debug
+			if (cmd.getCommande() == "USER")
+				cmdUser(cmd, user);
+			else if (cmd.getCommande() == "NICK")
+				cmdNick(cmd, user);
+		}
+		else
+		{
+			std::cout << "Not logged" << std::endl;
 		}
 
-	// To send message to client :
-	if (receivedData == "ping\n")
+		receivedData.erase(0, newLine + 1);
+	}
+
+//	 To send message to client :
+	/*if (receivedData == "ping\n")
 	{
 		std::cout << "pong" << std::endl;
 		send(it->fd, response.c_str(), response.size(), 0);
+	}*/
+}
+
+
+/* COMMANDS */
+
+void Server::cmdUser(const Commande& cmd, User *user)
+{
+	if (cmd.getParams().size() < 4)
+		std::cout << "USER: not enough args " << cmd.getParams().size() << std::endl;
+	else
+	{
+		user->setUsername(cmd.getParams()[0]);
+		std::string &realname = const_cast<std::string &>(cmd.getParams()[3]);
+		for (unsigned int i = 3; i <= cmd.getParams().size(); i++)
+			realname += cmd.getParams()[i];
+		if (realname[0] != ':')
+		{
+			// Error: realname must start with ':'
+		}
+		else
+			user->setRealname(realname.substr(1, realname.size()));
 	}
 }
 
+void Server::cmdNick(const Commande &cmd, User *user)
+{
+	if (cmd.getParams().size() != 1)
+		std::cout << "NICK: incorrect number of args " << cmd.getParams().size() << std::endl;
+	else
+	{
+		try
+		{
+			if (cmd.getParams()[0].substr(cmd.getParams()[0].size() - 2) == "\r\n") //FIXME remove this if parser remove these chars first
+				user->setNickname(cmd.getParams()[0].substr(0, cmd.getParams()[0].size() - 2));
+			else
+				user->setNickname(cmd.getParams()[0]);
+//			std::cout << "New NICK:" << user->getNickname() << std::endl;
+		}
+		catch (std::exception &e)
+		{
+			std::cout << e.what() << std::endl;
+			// Invalid nick
+		}
+	}
+}
 
 
 /* EXCEPTIONS */
