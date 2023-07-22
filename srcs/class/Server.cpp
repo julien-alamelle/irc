@@ -38,12 +38,13 @@ void Server::start(int &keep)
 			throw PollError();
 		}
 
-		for (size_t i = 0; i < _clientSockets.size(); ++i)
+		for (unsigned int i = 0; i < _clientSockets.size(); ++i)
 		{
-			if (_clientSockets[i].fd == _serverSocket && _clientSockets[i].revents & POLLIN)
+			std::vector<pollfd>::iterator it = _clientSockets.begin() + i;
+			if (it->fd == _serverSocket && it->revents == POLLIN)
 				newConnexion();
-			else if (_clientSockets[i].revents & POLLIN)
-				newMessage((int)i);
+			else if (it->revents == POLLIN)
+				newMessage(it);
 		}
 	}
 	close(_serverSocket);
@@ -51,6 +52,7 @@ void Server::start(int &keep)
 
 void Server::newConnexion()
 {
+//	std::cout << "NEW\n";
 	sockaddr_in clientAddress = {};
 	socklen_t clientAddressLength = sizeof(clientAddress);
 
@@ -69,42 +71,47 @@ void Server::newConnexion()
 	std::cout << GREEN << "New connexion. Socket : " << clientSocket << END << std::endl;
 }
 
-void Server::newMessage(int clientNumber)
+void Server::newMessage(std::vector<pollfd>::iterator it)
 {
+//	std::cout << "MSG\n";
 	char buffer[512];
 	memset(buffer, 0, sizeof(buffer));
 
-	if (recv(_clientSockets[clientNumber].fd, buffer, sizeof(buffer) - 1, 0) <= 0)
-		disconnexion(clientNumber);
+	if (recv(it->fd, buffer, sizeof(buffer) - 1, 0) <= 0)
+		disconnexion(it);
 	else
-		handleMessage(buffer, clientNumber);
+		handleMessage(buffer, it);
 }
 
-void Server::disconnexion(int clientNumber)
+void Server::disconnexion(std::vector<pollfd>::iterator it)
 {
-	int fd = _clientSockets[clientNumber].fd;
+//	std::cout << "DISCONNEXION\n";
+	int fd = it->fd;
 
 	close(fd);
-	std::cout << RED << "Disconnected client. Socket : " << _clients.find(fd)->second.getSocket() << END << std::endl;
+	std::cout << RED << "Disconnected client. Socket : " << _clients.find(fd)->second.getSocket() << END
+			  << std::endl;
 
 	_clients.erase(fd);
-	_clientSockets.erase(_clientSockets.begin() + clientNumber);
+	_clientSockets.erase(it);
 }
 
-void Server::handleMessage(char *buffer, int clientNumber)
+void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 {
+//	std::cout << "HANDLE MSG\n";
+
 	std::string response = "pong\n";
 	std::string receivedData(buffer);
-	std::cout << CYAN << _clientSockets[clientNumber].fd << ": " << receivedData << END;
+	std::cout << CYAN << it->fd << ": " << receivedData << END;
 
-	if (receivedData == "PASS " + _password) //FIXME: do this with the parser
-		_clients.find(clientNumber)->second.setPasswordOk();
+//	if (receivedData == "PASS " + _password) //FIXME: do this with the parser
+//		_clients.find(it->fd)->second.setPasswordOk();
 
 	// To send message to client :
 	if (receivedData == "ping\n")
 	{
 		std::cout << "pong" << std::endl;
-		send(_clientSockets[clientNumber].fd, response.c_str(), response.size(), 0);
+		send(it->fd, response.c_str(), response.size(), 0);
 	}
 }
 
