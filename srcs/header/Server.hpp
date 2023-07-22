@@ -8,6 +8,7 @@
 #include <iostream>
 #include <cstring>
 #include <unistd.h>
+#include <algorithm>
 
 #include "User.hpp"
 #include "Channel.hpp"
@@ -33,9 +34,9 @@ private:
 	std::string						_password;
 
 	void newConnexion();
-	void newMessage(int clientNumber);
-	void disconnexion(int clientNumber);
-	void handleMessage(char *buffer, int clientNumber);
+	void newMessage(std::vector<pollfd>::iterator it);
+	void disconnexion(std::vector<pollfd>::iterator it);
+	void handleMessage(char *buffer, std::vector<pollfd>::iterator it);
 
 /* EXCEPTIONS */
 public:
