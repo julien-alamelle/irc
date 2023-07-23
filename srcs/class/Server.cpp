@@ -1,5 +1,4 @@
-#include "../header/Server.hpp"
-#include "Commande.hpp"
+#include "Server.hpp"
 
 Server::Server(int port, const std::string &password) : _port(port), _password(password)
 {
@@ -141,10 +140,12 @@ void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 				cmdUser(cmd, user);
 			else if (cmd.getCommande() == "NICK")
 				cmdNick(cmd, user);
+			else if (cmd.getCommande() == "JOIN")
+				cmdJoin(cmd, user);
 		}
 		else
 		{
-			std::cout << "Not logged" << std::endl;
+			std::cerr << "Not logged" << std::endl;
 		}
 
 		receivedData.erase(0, newLine + 1);
@@ -164,7 +165,7 @@ void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 void Server::cmdUser(const Commande &cmd, User *user)
 {
 	if (cmd.getParams().size() < 4)
-		std::cout << "USER: not enough args " << cmd.getParams().size() << std::endl;
+		std::cerr << "USER: not enough args " << cmd.getParams().size() << std::endl;
 	else
 	{
 		user->setUsername(cmd.getParams()[0]);
@@ -183,7 +184,7 @@ void Server::cmdUser(const Commande &cmd, User *user)
 void Server::cmdNick(const Commande &cmd, User *user)
 {
 	if (cmd.getParams().size() != 1)
-		std::cout << "NICK: incorrect number of args " << cmd.getParams().size() << std::endl;
+		std::cerr << "NICK: incorrect number of args " << cmd.getParams().size() << std::endl;
 	else
 	{
 		try
@@ -193,8 +194,47 @@ void Server::cmdNick(const Commande &cmd, User *user)
 		}
 		catch (std::exception &e)
 		{
-			std::cout << e.what() << std::endl;
+			std::cerr << e.what() << std::endl;
 			// Invalid nick
+		}
+	}
+}
+
+void Server::cmdJoin(const Commande &cmd, User *user)
+{
+	if (cmd.getParams().size() < 1)
+		std::cerr << "JOIN: incorrect number of args " << cmd.getParams().size() << std::endl;
+	else
+	{
+		std::string channelName = cmd.getParams()[0];
+		if (!Channel::isChannelNameValid(channelName))
+		{
+			// Error: invalid channel name
+			std::cerr << "JOIN: invalid channel name: " << channelName << std::endl;
+		}
+		else
+		{
+			const std::map<std::string, Channel>::iterator &channel = _channels.find(channelName);
+			if (channel != _channels.end())
+			{
+				bool passwordOk = (channel->second.isPasswordMode() && cmd.getParams().size() == 2 &&
+								   channel->second.isPasswordValid(cmd.getParams()[1])) &&
+								  !channel->second.isPasswordMode();
+				bool inviteOk = (channel->second.isInviteMode() && channel->second.isInvited(user)) ||
+								!channel->second.isInviteMode();
+
+				if (passwordOk && inviteOk)
+				{
+					user->joinChannel(&channel->second);
+					channel->second.addUser(user);
+				}
+				else if (!inviteOk)
+					Messages::cannotJoinInvite(user->getUsername(), channelName, user->getSocket());
+				else
+					Messages::cannotJoinPassowrd(user->getUsername(), channelName, user->getSocket());
+			}
+			else
+				_channels.insert(std::make_pair(channelName, Channel(user)));
 		}
 	}
 }

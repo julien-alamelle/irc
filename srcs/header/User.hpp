@@ -31,6 +31,7 @@ public:
 	const std::string &getRealname() const;
 	void setRealname(const std::string &realname);
 
+	void joinChannel(Channel *channel);
 
 private:
 	int			_socket;

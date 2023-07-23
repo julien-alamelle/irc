@@ -13,6 +13,7 @@
 #include "User.hpp"
 #include "Channel.hpp"
 #include "Commande.hpp"
+#include "Messages.hpp"
 
 #define GREEN "\e[32m"
 #define CYAN "\e[34m"
@@ -42,6 +43,7 @@ private:
 	/* COMMANDS */
 	static void cmdUser(const Commande& cmd, User *user);
 	static void cmdNick(const Commande& cmd, User *user);
+	void cmdJoin(const Commande& cmd, User *user);
 
 /* EXCEPTIONS */
 public:
