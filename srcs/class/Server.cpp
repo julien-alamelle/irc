@@ -1,5 +1,4 @@
-#include "../header/Server.hpp"
-#include "Commande.hpp"
+#include "Server.hpp"
 
 Server::Server(int port, const std::string &password) : _port(port), _password(password)
 {
@@ -127,13 +126,7 @@ void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 
 		user = &(_clients.find(it->fd)->second);
 		if (cmd.getCommande() == "PASS")
-		{
-			if (cmd.getParams()[0] == _password)
-			{
-				user->setPasswordOk();
-				std::cout << it->fd << ": " << "PASS OK\n"; //debug
-			}
-		}
+			cmdPass(cmd, user);
 		else if (user->isPasswordOk())
 		{
 //			std::cout << it->fd << ": COMMAND: " << cmd.getCommande() << "|" << std::endl; //debug
@@ -141,10 +134,14 @@ void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 				cmdUser(cmd, user);
 			else if (cmd.getCommande() == "NICK")
 				cmdNick(cmd, user);
+			else if (cmd.getCommande() == "JOIN")
+				cmdJoin(cmd, user);
+			else if (cmd.getCommande() == "INVITE")
+				cmdInvite(cmd, user);
 		}
 		else
 		{
-			std::cout << "Not logged" << std::endl;
+			std::cerr << "Not logged" << std::endl;
 		}
 
 		receivedData.erase(0, newLine + 1);
@@ -161,29 +158,48 @@ void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 
 /* COMMANDS */
 
+void Server::cmdPass(const Commande &cmd, User *user)
+{
+	if (user->isPasswordOk())
+		Messages::alreadyRegistered(*user);
+	if (cmd.getParams().empty())
+		Messages::needMoreParams(*user, cmd);
+	if (cmd.getParams()[0] == _password)
+	{
+		user->setPasswordOk();
+		std::cout << user->getSocket() << ": " << "PASS OK\n"; //debug
+	}
+	else
+		Messages::incorrectPassword(*user);
+}
+
 void Server::cmdUser(const Commande &cmd, User *user)
 {
 	if (cmd.getParams().size() < 4)
-		std::cout << "USER: not enough args " << cmd.getParams().size() << std::endl;
+		Messages::needMoreParams(*user, cmd);
+	else if (!user->getUsername().empty())
+		Messages::alreadyRegistered(*user);
 	else
 	{
-		user->setUsername(cmd.getParams()[0]);
 		std::string &realname = const_cast<std::string &>(cmd.getParams()[3]);
-		for (unsigned int i = 3; i <= cmd.getParams().size(); i++)
-			realname += cmd.getParams()[i];
+		for (unsigned int i = 3; i < cmd.getParams().size(); i++)
+			realname += " " + cmd.getParams()[i];
 		if (realname[0] != ':')
 		{
 			// Error: realname must start with ':'
 		}
 		else
-			user->setRealname(realname.substr(1, realname.size()));
+		{
+			user->setUsername(cmd.getParams()[0]);
+			user->setRealname(realname.substr(1, realname.size() - 1));
+		}
 	}
 }
 
 void Server::cmdNick(const Commande &cmd, User *user)
 {
 	if (cmd.getParams().size() != 1)
-		std::cout << "NICK: incorrect number of args " << cmd.getParams().size() << std::endl;
+		Messages::needMoreParams(*user, cmd);
 	else
 	{
 		try
@@ -193,8 +209,81 @@ void Server::cmdNick(const Commande &cmd, User *user)
 		}
 		catch (std::exception &e)
 		{
-			std::cout << e.what() << std::endl;
+			Messages::invalidNickName(*user);
+			std::cerr << e.what() << std::endl;
 			// Invalid nick
+		}
+	}
+}
+
+void Server::cmdJoin(const Commande &cmd, User *user)
+{
+	if (cmd.getParams().empty())
+		Messages::needMoreParams(*user, cmd);
+	else
+	{
+		std::string channelName = cmd.getParams()[0];
+		if (channelName == "0")
+			user->leaveChannel();
+		else if (!Channel::isChannelNameValid(channelName))
+		{
+			// Error: invalid channel name
+			std::cerr << "JOIN: invalid channel name: " << channelName << std::endl;
+		}
+		else
+		{
+			const std::map<std::string, Channel>::iterator &channel = _channels.find(channelName);
+			if (channel != _channels.end())
+			{
+				bool passwordOk = (channel->second.isPasswordMode() && cmd.getParams().size() == 2 &&
+								   channel->second.isPasswordValid(cmd.getParams()[1])) &&
+								  !channel->second.isPasswordMode();
+				bool inviteOk = (channel->second.isInviteMode() && channel->second.isInvited(user)) ||
+								!channel->second.isInviteMode();
+
+				if (passwordOk && inviteOk)
+					user->joinChannel(
+							&channel->second); //TODO: send all confirmation message when the channel is joined
+				else if (!inviteOk)
+					Messages::cannotJoinInvite(*user, channelName);
+				else
+					Messages::cannotJoinPassowrd(*user, channelName);
+			}
+			else
+				_channels.insert(std::make_pair(channelName, Channel(user)));
+		}
+	}
+}
+
+void Server::cmdInvite(const Commande &cmd, User *user)
+{
+	if (cmd.getParams().size() != 2)
+		Messages::needMoreParams(*user, cmd);
+	else
+	{
+		std::string channelName = cmd.getParams()[1];
+		const std::map<std::string, Channel>::iterator &channel = _channels.find(channelName);
+		if (channel == _channels.end())
+			Messages::noSuchChannel(*user, channelName);
+		else if (!channel->second.isInviteMode())
+			return; //TODO
+		else if (!channel->second.isUserOnChannel(user))
+			Messages::notOnChannel(*user, channelName);
+		else if (!channel->second.isUserOperator(user))
+			Messages::notOperator(*user, channelName);
+		else
+		{
+			for (std::map<int, User>::iterator it = _clients.begin(); it != _clients.end(); it++)
+			{
+				if (it->second.getNickname() == cmd.getParams()[0])
+				{
+					if (channel->second.isUserOnChannel(&(it->second)))
+						Messages::alreadyOnChannel(*user, channelName);
+					else
+						channel->second.inviteUser(&(it->second));
+					break;
+				}
+			}
 		}
 	}
 }

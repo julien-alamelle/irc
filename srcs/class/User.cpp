@@ -76,6 +76,18 @@ void User::setRealname(const std::string &realname)
 	_realname = realname;
 }
 
+void User::joinChannel(Channel *channel)
+{
+	if (channel)
+		channel->removeUser(this);
+	_connectedChannel = channel;
+	channel->addUser(this);
+}
+
+void User::leaveChannel()
+{
+	_connectedChannel = NULL;
+}
 
 
 /* EXCEPTIONS */

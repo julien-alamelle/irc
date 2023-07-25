@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <iostream>
+#include <algorithm>
 #include "User.hpp"
 
 class User;
@@ -18,25 +19,30 @@ public:
 
 	virtual ~Channel();
 
-	void	addUser(User *user);
-	void	delUser(User *user);
-	bool	isOperator(User *user);
-	void	setInviteMode(bool mode);
-	void	setTopicMode(bool mode);
-	void	setPassword(std::string key);
-	void	setOperator(User *user);
-	void	unsetOperator(User *user);
-	void	setUserLimit(int mode);
+	void addUser(User *user);
+	void removeUser(User *user);
+
+	void inviteUser(User *user);
+
+	bool isUserOnChannel(const User *user);
+	bool isUserOperator(const User *user);
+
+	bool isInviteMode() const;
+	bool isPasswordMode() const;
+	bool isPasswordValid(const std::string& password);
+	bool isInvited(User *user);
+
+	static bool isChannelNameValid(std::string& name);
 
 private:
 	std::vector<User *>	_connectedUsers;
+	std::vector<User *>	_invitedUsers;
 	std::vector<User *>	_operators;
 	std::string			_topic;
 	bool				_inviteMode;
-	bool				_topicMode;
 	bool				_passwordMode;
 	std::string			_password;
-	int					_userLimit;
+
 };
 
 
