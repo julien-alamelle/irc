@@ -82,6 +82,11 @@ void User::joinChannel(Channel *channel)
 	_connectedChannel = channel;
 }
 
+void User::leaveChannel()
+{
+	_connectedChannel = NULL;
+}
+
 
 /* EXCEPTIONS */
 

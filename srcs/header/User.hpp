@@ -32,6 +32,7 @@ public:
 	void setRealname(const std::string &realname);
 
 	void joinChannel(Channel *channel);
+	void leaveChannel();
 
 private:
 	int			_socket;
