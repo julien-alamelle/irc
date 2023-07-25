@@ -16,7 +16,6 @@
 class Messages
 {
 public:
-	//TODO: Change userName in parameters, its not what's required
 	static void cannotJoinInvite(const User &user, const std::string& channelName);
 	static void cannotJoinPassowrd(const User &user, const std::string& channelName);
 	static void needMoreParams(const User &user, const Commande& cmd);
