@@ -159,7 +159,7 @@ void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 void Server::cmdPass(const Commande &cmd, User *user)
 {
 	if (user->isPasswordOk())
-		Messages::alreadyLogged(*user);
+		Messages::alreadyRegistered(*user);
 	if (cmd.getParams().empty())
 		Messages::needMoreParams(*user, cmd);
 	if (cmd.getParams()[0] == _password)
@@ -174,26 +174,30 @@ void Server::cmdPass(const Commande &cmd, User *user)
 void Server::cmdUser(const Commande &cmd, User *user)
 {
 	if (cmd.getParams().size() < 4)
-		std::cerr << "USER: not enough args " << cmd.getParams().size() << std::endl;
+		Messages::needMoreParams(*user, cmd);
+	else if (!user->getUsername().empty())
+		Messages::alreadyRegistered(*user);
 	else
 	{
-		user->setUsername(cmd.getParams()[0]);
 		std::string &realname = const_cast<std::string &>(cmd.getParams()[3]);
-		for (unsigned int i = 3; i <= cmd.getParams().size(); i++)
-			realname += cmd.getParams()[i];
+		for (unsigned int i = 3; i < cmd.getParams().size(); i++)
+			realname += " " + cmd.getParams()[i];
 		if (realname[0] != ':')
 		{
 			// Error: realname must start with ':'
 		}
 		else
-			user->setRealname(realname.substr(1, realname.size()));
+		{
+			user->setUsername(cmd.getParams()[0]);
+			user->setRealname(realname.substr(1, realname.size() - 1));
+		}
 	}
 }
 
 void Server::cmdNick(const Commande &cmd, User *user)
 {
 	if (cmd.getParams().size() != 1)
-		std::cerr << "NICK: incorrect number of args " << cmd.getParams().size() << std::endl;
+		Messages::needMoreParams(*user, cmd);
 	else
 	{
 		try
@@ -213,7 +217,7 @@ void Server::cmdNick(const Commande &cmd, User *user)
 void Server::cmdJoin(const Commande &cmd, User *user)
 {
 	if (cmd.getParams().empty())
-		std::cerr << "JOIN: incorrect number of args " << cmd.getParams().size() << std::endl;
+		Messages::needMoreParams(*user, cmd);
 	else
 	{
 		std::string channelName = cmd.getParams()[0];
