@@ -120,19 +120,13 @@ void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 
 		std::cout << CYAN << it->fd << ": " << line << END << std::endl;
 		cmd.parse(line);
-		response = cmd.toString();    //TODO generate the answer and sent to the right client
+		response = cmd.toString();	//TODO generate the answer and sent to the right client
 		std::cout << response << std::endl;
 		send(it->fd, response.c_str(), response.size(), 0);
 
 		user = &(_clients.find(it->fd)->second);
 		if (cmd.getCommande() == "PASS")
-		{
-			if (cmd.getParams()[0] == _password)
-			{
-				user->setPasswordOk();
-				std::cout << it->fd << ": " << "PASS OK\n"; //debug
-			}
-		}
+			cmdPass(cmd, user);
 		else if (user->isPasswordOk())
 		{
 //			std::cout << it->fd << ": COMMAND: " << cmd.getCommande() << "|" << std::endl; //debug
@@ -161,6 +155,21 @@ void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 
 
 /* COMMANDS */
+
+void Server::cmdPass(const Commande &cmd, User *user)
+{
+	if (user->isPasswordOk())
+		Messages::alreadyLogged(user->getUsername(), user->getSocket());
+	if (cmd.getParams().empty())
+		Messages::needMoreParams(user->getUsername(), cmd, user->getSocket());
+	if (cmd.getParams()[0] == _password)
+	{
+		user->setPasswordOk();
+		std::cout << user->getSocket() << ": " << "PASS OK\n"; //debug
+	}
+	else
+		Messages::incorrectPassword(user->getUsername(), user->getSocket());
+}
 
 void Server::cmdUser(const Commande &cmd, User *user)
 {
@@ -202,7 +211,7 @@ void Server::cmdNick(const Commande &cmd, User *user)
 
 void Server::cmdJoin(const Commande &cmd, User *user)
 {
-	if (cmd.getParams().size() < 1)
+	if (cmd.getParams().empty())
 		std::cerr << "JOIN: incorrect number of args " << cmd.getParams().size() << std::endl;
 	else
 	{
@@ -238,6 +247,7 @@ void Server::cmdJoin(const Commande &cmd, User *user)
 		}
 	}
 }
+
 
 
 /* EXCEPTIONS */

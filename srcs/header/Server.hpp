@@ -41,6 +41,7 @@ private:
 	void handleMessage(char *buffer, std::vector<pollfd>::iterator it);
 
 	/* COMMANDS */
+	void cmdPass(const Commande& cmd, User *user);
 	static void cmdUser(const Commande& cmd, User *user);
 	static void cmdNick(const Commande& cmd, User *user);
 	void cmdJoin(const Commande& cmd, User *user);

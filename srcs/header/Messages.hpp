@@ -8,11 +8,17 @@
 #include <string>
 #include <netinet/in.h>
 
+#include "Commande.hpp"
+
 class Messages
 {
 public:
-	static void cannotJoinInvite(std::string userName, std::string channelName, int socket);
-	static void cannotJoinPassowrd(std::string userName, std::string channelName, int socket);
+	//TODO: Check if it need really need userName or something else like nickName or realName
+	static void cannotJoinInvite(const std::string& userName, const std::string& channelName, int socket);
+	static void cannotJoinPassowrd(const std::string& userName, const std::string& channelName, int socket);
+	static void needMoreParams(const std::string& userName, const Commande& cmd, int socket);
+	static void incorrectPassword(const std::string& userName, int socket);
+	static void alreadyLogged(const std::string& userName, int socket);
 };
 
 
