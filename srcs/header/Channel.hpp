@@ -7,6 +7,7 @@
 
 #include <vector>
 #include <iostream>
+#include <algorithm>
 #include "User.hpp"
 
 class User;
@@ -20,6 +21,11 @@ public:
 
 	void addUser(User *user);
 	void removeUser(User *user);
+
+	void inviteUser(User *user);
+
+	bool isUserOnChannel(const User *user);
+	bool isUserOperator(const User *user);
 
 	bool isInviteMode() const;
 	bool isPasswordMode() const;

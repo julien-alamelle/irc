@@ -45,6 +45,7 @@ private:
 	static void cmdUser(const Commande& cmd, User *user);
 	static void cmdNick(const Commande& cmd, User *user);
 	void cmdJoin(const Commande& cmd, User *user);
+	void cmdInvite(const Commande& cmd, User *user);
 
 /* EXCEPTIONS */
 public:

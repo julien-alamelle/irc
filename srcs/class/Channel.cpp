@@ -34,6 +34,29 @@ void Channel::removeUser(User *user)
 			_operators.erase(it);
 }
 
+void Channel::inviteUser(User *user)
+{
+	if (std::find(_invitedUsers.begin(), _invitedUsers.end(), user) != _invitedUsers.end())
+
+	_invitedUsers.push_back(user);
+}
+
+bool Channel::isUserOnChannel(const User *user)
+{
+	for (std::vector<User *>::iterator it = _connectedUsers.begin(); it < _connectedUsers.end() ;it++)
+		if (*it == user)
+			return true;
+	return false;
+}
+
+bool Channel::isUserOperator(const User *user)
+{
+	for (std::vector<User *>::iterator it = _operators.begin(); it < _operators.end() ;it++)
+		if (*it == user)
+			return true;
+	return false;
+}
+
 bool Channel::isChannelNameValid(std::string &name)
 {
 	if (name.empty())

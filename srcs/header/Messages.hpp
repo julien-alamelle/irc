@@ -22,6 +22,10 @@ public:
 	static void incorrectPassword(const User &user);
 	static void alreadyRegistered(const User &user);
 	static void invalidNickName(const User &user);
+	static void noSuchChannel(const User &user, const std::string& channelName);
+	static void notOnChannel(const User &user, const std::string& channelName);
+	static void notOperator(const User &user, const std::string& channelName);
+	static void alreadyOnChannel(const User &user, const std::string& channelName);
 };
 
 

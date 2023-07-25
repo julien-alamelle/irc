@@ -120,7 +120,7 @@ void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 
 		std::cout << CYAN << it->fd << ": " << line << END << std::endl;
 		cmd.parse(line);
-		response = cmd.toString();	//TODO generate the answer and sent to the right client
+		response = cmd.toString();    //TODO generate the answer and sent to the right client
 		std::cout << response << std::endl;
 		send(it->fd, response.c_str(), response.size(), 0);
 
@@ -136,6 +136,8 @@ void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 				cmdNick(cmd, user);
 			else if (cmd.getCommande() == "JOIN")
 				cmdJoin(cmd, user);
+			else if (cmd.getCommande() == "INVITE")
+				cmdInvite(cmd, user);
 		}
 		else
 		{
@@ -240,7 +242,8 @@ void Server::cmdJoin(const Commande &cmd, User *user)
 								!channel->second.isInviteMode();
 
 				if (passwordOk && inviteOk)
-					user->joinChannel(&channel->second);
+					user->joinChannel(
+							&channel->second); //TODO: send all confirmation message when the channel is joined
 				else if (!inviteOk)
 					Messages::cannotJoinInvite(*user, channelName);
 				else
@@ -252,6 +255,38 @@ void Server::cmdJoin(const Commande &cmd, User *user)
 	}
 }
 
+void Server::cmdInvite(const Commande &cmd, User *user)
+{
+	if (cmd.getParams().size() != 2)
+		Messages::needMoreParams(*user, cmd);
+	else
+	{
+		std::string channelName = cmd.getParams()[1];
+		const std::map<std::string, Channel>::iterator &channel = _channels.find(channelName);
+		if (channel == _channels.end())
+			Messages::noSuchChannel(*user, channelName);
+		else if (!channel->second.isInviteMode())
+			return; //TODO
+		else if (!channel->second.isUserOnChannel(user))
+			Messages::notOnChannel(*user, channelName);
+		else if (!channel->second.isUserOperator(user))
+			Messages::notOperator(*user, channelName);
+		else
+		{
+			for (std::map<int, User>::iterator it = _clients.begin(); it != _clients.end(); it++)
+			{
+				if (it->second.getNickname() == cmd.getParams()[0])
+				{
+					if (channel->second.isUserOnChannel(&(it->second)))
+						Messages::alreadyOnChannel(*user, channelName);
+					else
+						channel->second.inviteUser(&(it->second));
+					break;
+				}
+			}
+		}
+	}
+}
 
 
 /* EXCEPTIONS */
