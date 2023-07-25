@@ -58,6 +58,10 @@ bool Channel::isPasswordValid(const std::string &password)
 
 bool Channel::isInvited(User *user)
 {
-	return (std::find(_invitedUsers.begin(), _invitedUsers.end(), user) != _invitedUsers.end());
+	for (std::vector<User *>::iterator it = _invitedUsers.begin(); it < _invitedUsers.end() ;it++)
+		if ((*it)->getSocket() == user->getSocket())
+			return true;
+
+	return false;
 }
 
