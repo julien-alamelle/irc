@@ -35,7 +35,7 @@ public:
 	void leaveChannel();
 
 private:
-	int			_socket;
+	const int	_socket;
 	std::string	_nickname;
 	std::string	_username;
 	std::string	_realname;
