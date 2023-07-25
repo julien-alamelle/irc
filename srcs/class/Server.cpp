@@ -45,6 +45,10 @@ void Server::start(int &keep)
 				newConnexion();
 			else if (it->revents == POLLIN)
 				newMessage(it);
+
+			for (std::map<std::string, Channel>::iterator j = _channels.begin(); j != _channels.end() ; ++j)
+				if (j->second.isEmpty())
+					_channels.erase(j);
 		}
 	}
 	close(_serverSocket);
@@ -224,7 +228,7 @@ void Server::cmdJoin(const Commande &cmd, User *user)
 	{
 		std::string channelName = cmd.getParams()[0];
 		if (channelName == "0")
-			user->leaveChannel();
+			user->leaveAllChannels();
 		else if (!Channel::isChannelNameValid(channelName))
 		{
 			// Error: invalid channel name

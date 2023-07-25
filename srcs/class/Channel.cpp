@@ -27,6 +27,11 @@ void Channel::addUser(User *user)
 	_connectedUsers.push_back(user);
 }
 
+bool Channel::isEmpty()
+{
+	return _connectedUsers.empty();
+}
+
 void Channel::removeUser(User *user)
 {
 	for (std::vector<User *>::iterator it = _connectedUsers.begin(); it < _connectedUsers.end() ;it++)

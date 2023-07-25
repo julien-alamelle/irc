@@ -19,6 +19,8 @@ public:
 
 	virtual ~Channel();
 
+	bool isEmpty();
+
 	void addUser(User *user);
 	void removeUser(User *user);
 

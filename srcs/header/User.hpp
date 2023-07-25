@@ -31,6 +31,7 @@ public:
 
 	void joinChannel(Channel *channel);
 	void leaveChannel(Channel *channel);
+	void leaveAllChannels();
 
 private:
 	const int				_socket;
