@@ -5,32 +5,38 @@
 #include "Messages.hpp"
 
 
-void Messages::cannotJoinInvite(const std::string& userName, const std::string& channelName, int socket)
+void Messages::cannotJoinInvite(const User &user, const std::string& channelName)
 {
-	std::string errorMsg = userName + " " + channelName + " :Cannot join channel (+i)";
-	send(socket, errorMsg.c_str(), errorMsg.size(), 0);
+	std::string errorMsg = user.getUsername() + " " + channelName + " :Cannot join channel (+i)";
+	send(user.getSocket(), errorMsg.c_str(), errorMsg.size(), 0);
 }
 
-void Messages::cannotJoinPassowrd(const std::string& userName, const std::string& channelName, int socket)
+void Messages::cannotJoinPassowrd(const User &user, const std::string& channelName)
 {
-	std::string errorMsg = userName + " " + channelName + " :Cannot join channel (+k)";
-	send(socket, errorMsg.c_str(), errorMsg.size(), 0);
+	std::string errorMsg = user.getUsername() + " " + channelName + " :Cannot join channel (+k)";
+	send(user.getSocket(), errorMsg.c_str(), errorMsg.size(), 0);
 }
 
-void Messages::needMoreParams(const std::string &userName, const Commande& cmd, int socket)
+void Messages::needMoreParams(const User &user, const Commande& cmd)
 {
-	std::string errorMsg = userName + " " + cmd.getCommande() + " :Not enough parameter";
-	send(socket, errorMsg.c_str(), errorMsg.size(), 0);
+	std::string errorMsg = user.getUsername() + " " + cmd.getCommande() + " :Not enough parameter";
+	send(user.getSocket(), errorMsg.c_str(), errorMsg.size(), 0);
 }
 
-void Messages::incorrectPassword(const std::string &userName, int socket)
+void Messages::incorrectPassword(const User &user)
 {
-	std::string errorMsg = userName + " :Password incorrect";
-	send(socket, errorMsg.c_str(), errorMsg.size(), 0);
+	std::string errorMsg = user.getUsername() + " :Password incorrect";
+	send(user.getSocket(), errorMsg.c_str(), errorMsg.size(), 0);
 }
 
-void Messages::alreadyLogged(const std::string &userName, int socket)
+void Messages::alreadyLogged(const User &user)
 {
-	std::string errorMsg = userName + " :You may not reregister";
-	send(socket, errorMsg.c_str(), errorMsg.size(), 0);
+	std::string errorMsg = user.getUsername() + " :You may not reregister";
+	send(user.getSocket(), errorMsg.c_str(), errorMsg.size(), 0);
+}
+
+void Messages::invalidNickName(const User &user)
+{
+	std::string errorMsg = user.getNickname() + " :Erroneus nickname";
+	send(user.getSocket(), errorMsg.c_str(), errorMsg.size(), 0);
 }

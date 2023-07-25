@@ -9,16 +9,18 @@
 #include <netinet/in.h>
 
 #include "Commande.hpp"
+#include "User.hpp"
 
 class Messages
 {
 public:
-	//TODO: Check if it need really need userName or something else like nickName or realName
-	static void cannotJoinInvite(const std::string& userName, const std::string& channelName, int socket);
-	static void cannotJoinPassowrd(const std::string& userName, const std::string& channelName, int socket);
-	static void needMoreParams(const std::string& userName, const Commande& cmd, int socket);
-	static void incorrectPassword(const std::string& userName, int socket);
-	static void alreadyLogged(const std::string& userName, int socket);
+	//TODO: Change userName in parameters, its not what's required
+	static void cannotJoinInvite(const User &user, const std::string& channelName);
+	static void cannotJoinPassowrd(const User &user, const std::string& channelName);
+	static void needMoreParams(const User &user, const Commande& cmd);
+	static void incorrectPassword(const User &user);
+	static void alreadyLogged(const User &user);
+	static void invalidNickName(const User &user);
 };
 
 

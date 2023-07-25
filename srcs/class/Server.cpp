@@ -159,16 +159,16 @@ void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 void Server::cmdPass(const Commande &cmd, User *user)
 {
 	if (user->isPasswordOk())
-		Messages::alreadyLogged(user->getUsername(), user->getSocket());
+		Messages::alreadyLogged(*user);
 	if (cmd.getParams().empty())
-		Messages::needMoreParams(user->getUsername(), cmd, user->getSocket());
+		Messages::needMoreParams(*user, cmd);
 	if (cmd.getParams()[0] == _password)
 	{
 		user->setPasswordOk();
 		std::cout << user->getSocket() << ": " << "PASS OK\n"; //debug
 	}
 	else
-		Messages::incorrectPassword(user->getUsername(), user->getSocket());
+		Messages::incorrectPassword(*user);
 }
 
 void Server::cmdUser(const Commande &cmd, User *user)
@@ -203,6 +203,7 @@ void Server::cmdNick(const Commande &cmd, User *user)
 		}
 		catch (std::exception &e)
 		{
+			Messages::invalidNickName(*user);
 			std::cerr << e.what() << std::endl;
 			// Invalid nick
 		}
@@ -238,9 +239,9 @@ void Server::cmdJoin(const Commande &cmd, User *user)
 					channel->second.addUser(user);
 				}
 				else if (!inviteOk)
-					Messages::cannotJoinInvite(user->getUsername(), channelName, user->getSocket());
+					Messages::cannotJoinInvite(*user, channelName);
 				else
-					Messages::cannotJoinPassowrd(user->getUsername(), channelName, user->getSocket());
+					Messages::cannotJoinPassowrd(*user, channelName);
 			}
 			else
 				_channels.insert(std::make_pair(channelName, Channel(user)));
