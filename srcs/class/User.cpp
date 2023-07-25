@@ -84,6 +84,15 @@ void User::leaveChannel(Channel *channel)
 		_connectedChannels.erase(chan);
 }
 
+void User::leaveAllChannels()
+{
+	for (std::vector<Channel *>::iterator it = _connectedChannels.begin(); it < _connectedChannels.end(); it++)
+	{
+		(*it)->removeUser(this);
+		_connectedChannels.erase(it);
+	}
+}
+
 
 /* EXCEPTIONS */
 

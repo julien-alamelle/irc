@@ -228,7 +228,7 @@ void Server::cmdJoin(const Commande &cmd, User *user)
 	{
 		std::string channelName = cmd.getParams()[0];
 		if (channelName == "0")
-			user->leaveChannel();
+			user->leaveAllChannels();
 		else if (!Channel::isChannelNameValid(channelName))
 		{
 			// Error: invalid channel name
