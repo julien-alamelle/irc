@@ -13,7 +13,7 @@ static bool isValidNickname(std::string nick)
 	return false;
 }
 
-User::User(int socket) : _socket(socket), _connectedChannel(NULL), _passwordOk(false)
+User::User(int socket) : _socket(socket), _passwordOk(false)
 {
 
 }
@@ -26,11 +26,6 @@ User::~User()
 int User::getSocket() const
 {
 	return _socket;
-}
-
-Channel *User::getConnectedChannel() const
-{
-	return _connectedChannel;
 }
 
 const std::string &User::getNickname() const
@@ -78,15 +73,15 @@ void User::setRealname(const std::string &realname)
 
 void User::joinChannel(Channel *channel)
 {
-	if (channel)
-		channel->removeUser(this);
-	_connectedChannel = channel;
+	_connectedChannels.push_back(channel);
 	channel->addUser(this);
 }
 
-void User::leaveChannel()
+void User::leaveChannel(Channel *channel)
 {
-	_connectedChannel = NULL;
+	std::vector<Channel *>::iterator chan = std::find(_connectedChannels.begin(), _connectedChannels.end(), channel);
+	if (chan != _connectedChannels.end())
+		_connectedChannels.erase(chan);
 }
 
 

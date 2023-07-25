@@ -17,8 +17,6 @@ public:
 
 	int getSocket() const;
 
-	Channel *getConnectedChannel() const;
-
 	const std::string &getNickname() const;
 	void setNickname(const std::string &nickname);
 
@@ -32,15 +30,15 @@ public:
 	void setRealname(const std::string &realname);
 
 	void joinChannel(Channel *channel);
-	void leaveChannel();
+	void leaveChannel(Channel *channel);
 
 private:
-	const int	_socket;
-	std::string	_nickname;
-	std::string	_username;
-	std::string	_realname;
-	Channel 	*_connectedChannel;
-	bool		_passwordOk;
+	const int				_socket;
+	std::string				_nickname;
+	std::string				_username;
+	std::string				_realname;
+	std::vector<Channel *>	_connectedChannels;
+	bool					_passwordOk;
 
 
 /* EXCEPTIONS */
