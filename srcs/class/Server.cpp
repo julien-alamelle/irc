@@ -1,7 +1,7 @@
 #include "../header/Server.hpp"
 #include "Commande.hpp"
 
-Server::Server(int port, const std::string& password) : _port(port), _password(password)
+Server::Server(int port, const std::string &password) : _port(port), _password(password)
 {
 	_serverSocket = socket(AF_INET, SOCK_STREAM, 0);
 	if (_serverSocket == -1)
@@ -39,12 +39,13 @@ void Server::start(int &keep)
 			throw PollError();
 		}
 
-		for (size_t i = 0; i < _clientSockets.size(); ++i)
+		for (unsigned int i = 0; i < _clientSockets.size(); ++i)
 		{
-			if (_clientSockets[i].fd == _serverSocket && _clientSockets[i].revents & POLLIN)
+			std::vector<pollfd>::iterator it = _clientSockets.begin() + i;
+			if (it->fd == _serverSocket && it->revents == POLLIN)
 				newConnexion();
-			else if (_clientSockets[i].revents & POLLIN)
-				newMessage((int)i);
+			else if (it->revents == POLLIN)
+				newMessage(it);
 		}
 	}
 	close(_serverSocket);
@@ -52,6 +53,7 @@ void Server::start(int &keep)
 
 void Server::newConnexion()
 {
+//	std::cout << "NEW\n";
 	sockaddr_in clientAddress = {};
 	socklen_t clientAddressLength = sizeof(clientAddress);
 
@@ -70,51 +72,132 @@ void Server::newConnexion()
 	std::cout << GREEN << "New connexion. Socket : " << clientSocket << END << std::endl;
 }
 
-void Server::newMessage(int clientNumber)
+void Server::newMessage(std::vector<pollfd>::iterator it)
 {
+//	std::cout << "MSG\n";
 	char buffer[512];
 	memset(buffer, 0, sizeof(buffer));
 
-	if (recv(_clientSockets[clientNumber].fd, buffer, sizeof(buffer) - 1, 0) <= 0)
-		disconnexion(clientNumber);
+	if (recv(it->fd, buffer, sizeof(buffer) - 1, 0) <= 0)
+		disconnexion(it);
 	else
-		handleMessage(buffer, clientNumber);
+		handleMessage(buffer, it);
 }
 
-void Server::disconnexion(int clientNumber)
+void Server::disconnexion(std::vector<pollfd>::iterator it)
 {
-	int fd = _clientSockets[clientNumber].fd;
+//	std::cout << "DISCONNEXION\n";
+	int fd = it->fd;
 
 	close(fd);
-	std::cout << RED << "Disconnected client. Socket : " << _clients.find(fd)->second.getSocket() << END << std::endl;
+	std::cout << RED << "Disconnected client. Socket : " << _clients.find(fd)->second.getSocket() << END
+			  << std::endl;
 
 	_clients.erase(fd);
-	_clientSockets.erase(_clientSockets.begin() + clientNumber);
+	_clientSockets.erase(it);
 }
 
-void Server::handleMessage(char *buffer, int clientNumber)
+void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 {
-	Commande cmd;
+//	std::cout << "HANDLE MSG\n";
+
 	std::string response = "pong\n";
 	std::string receivedData(buffer);
-	std::cout << CYAN << _clientSockets[clientNumber].fd << ": " << receivedData << END;
+//	std::cout << CYAN << "FULL " << it->fd << ": " << receivedData << END;
 
-	cmd.parse(receivedData);
-	response = cmd.toString();	//TODO generate the answer and sent to the right client
-	std::cout << response << std::endl;
-	send(_clientSockets[clientNumber].fd, response.c_str(), response.size(), 0);
-	
-	if (receivedData == "PASS " + _password) //FIXME: do this with the parser
-		_clients.find(clientNumber)->second.setPasswordOk();
+	Commande cmd;
+	User *user;
 
-	// To send message to client :
-	if (receivedData == "ping\n")
+	size_t newLine;
+	std::string line;
+
+	if (*receivedData.rbegin() != '\n')
+		receivedData += '\n';
+	while ((newLine = receivedData.find('\n')) != std::string::npos)
+	{
+		line = receivedData.substr(0, newLine);
+		if (!line.empty() && *line.rbegin() == '\r')
+			line = line.substr(0, line.size() - 1);
+
+		std::cout << CYAN << it->fd << ": " << line << END << std::endl;
+		cmd.parse(line);
+		response = cmd.toString();    //TODO generate the answer and sent to the right client
+		std::cout << response << std::endl;
+		send(it->fd, response.c_str(), response.size(), 0);
+
+		user = &(_clients.find(it->fd)->second);
+		if (cmd.getCommande() == "PASS")
+		{
+			if (cmd.getParams()[0] == _password)
+			{
+				user->setPasswordOk();
+				std::cout << it->fd << ": " << "PASS OK\n"; //debug
+			}
+		}
+		else if (user->isPasswordOk())
+		{
+//			std::cout << it->fd << ": COMMAND: " << cmd.getCommande() << "|" << std::endl; //debug
+			if (cmd.getCommande() == "USER")
+				cmdUser(cmd, user);
+			else if (cmd.getCommande() == "NICK")
+				cmdNick(cmd, user);
+		}
+		else
+		{
+			std::cout << "Not logged" << std::endl;
+		}
+
+		receivedData.erase(0, newLine + 1);
+	}
+
+//	 To send message to client :
+	/*if (receivedData == "ping\n")
 	{
 		std::cout << "pong" << std::endl;
-		send(_clientSockets[clientNumber].fd, response.c_str(), response.size(), 0);
+		send(it->fd, response.c_str(), response.size(), 0);
+	}*/
+}
+
+
+/* COMMANDS */
+
+void Server::cmdUser(const Commande &cmd, User *user)
+{
+	if (cmd.getParams().size() < 4)
+		std::cout << "USER: not enough args " << cmd.getParams().size() << std::endl;
+	else
+	{
+		user->setUsername(cmd.getParams()[0]);
+		std::string &realname = const_cast<std::string &>(cmd.getParams()[3]);
+		for (unsigned int i = 3; i <= cmd.getParams().size(); i++)
+			realname += cmd.getParams()[i];
+		if (realname[0] != ':')
+		{
+			// Error: realname must start with ':'
+		}
+		else
+			user->setRealname(realname.substr(1, realname.size()));
 	}
 }
 
+void Server::cmdNick(const Commande &cmd, User *user)
+{
+	if (cmd.getParams().size() != 1)
+		std::cout << "NICK: incorrect number of args " << cmd.getParams().size() << std::endl;
+	else
+	{
+		try
+		{
+			user->setNickname(cmd.getParams()[0]);
+			std::cout << "New NICK:" << user->getNickname() << std::endl;
+		}
+		catch (std::exception &e)
+		{
+			std::cout << e.what() << std::endl;
+			// Invalid nick
+		}
+	}
+}
 
 
 /* EXCEPTIONS */

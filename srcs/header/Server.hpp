@@ -8,9 +8,11 @@
 #include <iostream>
 #include <cstring>
 #include <unistd.h>
+#include <algorithm>
 
 #include "User.hpp"
 #include "Channel.hpp"
+#include "Commande.hpp"
 
 #define GREEN "\e[32m"
 #define CYAN "\e[34m"
@@ -33,9 +35,13 @@ private:
 	std::string						_password;
 
 	void newConnexion();
-	void newMessage(int clientNumber);
-	void disconnexion(int clientNumber);
-	void handleMessage(char *buffer, int clientNumber);
+	void newMessage(std::vector<pollfd>::iterator it);
+	void disconnexion(std::vector<pollfd>::iterator it);
+	void handleMessage(char *buffer, std::vector<pollfd>::iterator it);
+
+	/* COMMANDS */
+	static void cmdUser(const Commande& cmd, User *user);
+	static void cmdNick(const Commande& cmd, User *user);
 
 /* EXCEPTIONS */
 public:
