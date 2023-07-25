@@ -24,6 +24,16 @@ void Channel::addUser(User *user)
 	_connectedUsers.push_back(user);
 }
 
+void Channel::removeUser(User *user)
+{
+	for (std::vector<User *>::iterator it = _connectedUsers.begin(); it < _connectedUsers.end() ;it++)
+		if (*it == user)
+			_connectedUsers.erase(it);
+	for (std::vector<User *>::iterator it = _operators.begin(); it < _operators.end() ;it++)
+		if (*it == user)
+			_operators.erase(it);
+}
+
 bool Channel::isChannelNameValid(std::string &name)
 {
 	if (name.empty())

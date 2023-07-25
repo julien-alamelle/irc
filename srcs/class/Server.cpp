@@ -240,10 +240,7 @@ void Server::cmdJoin(const Commande &cmd, User *user)
 								!channel->second.isInviteMode();
 
 				if (passwordOk && inviteOk)
-				{
 					user->joinChannel(&channel->second);
-					channel->second.addUser(user);
-				}
 				else if (!inviteOk)
 					Messages::cannotJoinInvite(*user, channelName);
 				else

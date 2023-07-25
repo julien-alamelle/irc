@@ -78,8 +78,10 @@ void User::setRealname(const std::string &realname)
 
 void User::joinChannel(Channel *channel)
 {
-	//TODO: check if we need to remove it from other channels
+	if (channel)
+		channel->removeUser(this);
 	_connectedChannel = channel;
+	channel->addUser(this);
 }
 
 void User::leaveChannel()

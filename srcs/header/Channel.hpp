@@ -19,6 +19,7 @@ public:
 	virtual ~Channel();
 
 	void addUser(User *user);
+	void removeUser(User *user);
 
 	bool isInviteMode() const;
 	bool isPasswordMode() const;
