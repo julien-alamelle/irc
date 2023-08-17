@@ -6,6 +6,10 @@ Server::Server(int port, const std::string &password) : _port(port), _password(p
 	if (_serverSocket == -1)
 		throw SocketError();
 
+	const int enable = 1;
+	if (setsockopt(_serverSocket, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
+		throw SocketError();
+
 	_serverAddress.sin_family = AF_INET;
 	_serverAddress.sin_addr.s_addr = INADDR_ANY;
 	_serverAddress.sin_port = htons(_port);
