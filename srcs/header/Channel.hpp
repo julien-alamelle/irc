@@ -15,7 +15,7 @@ class User;
 class Channel
 {
 public:
-	explicit Channel(User *creator);
+	explicit Channel(User *creator, const std::string &name);
 
 	virtual ~Channel();
 
@@ -40,6 +40,7 @@ private:
 	std::vector<User *>	_connectedUsers;
 	std::vector<User *>	_invitedUsers;
 	std::vector<User *>	_operators;
+	std::string			_name;
 	std::string			_topic;
 	bool				_inviteMode;
 	bool				_passwordMode;

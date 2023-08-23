@@ -4,7 +4,7 @@
 
 #include "Channel.hpp"
 
-Channel::Channel(User *creator)
+Channel::Channel(User *creator, const std::string &name)
 {
 	_connectedUsers.push_back(creator);
 	_operators.push_back(creator);
@@ -12,6 +12,7 @@ Channel::Channel(User *creator)
 	_inviteMode = false;
 	_passwordMode = false;
 	_password = "";
+	_name = name;
 }
 
 Channel::~Channel()
@@ -22,8 +23,12 @@ Channel::~Channel()
 void Channel::addUser(User *user)
 {
 	for (std::vector<User *>::iterator it = this->_connectedUsers.begin(); it < this->_connectedUsers.end(); ++it)
+	{
+		user->sendMessage(":" + user->getNickname() + " JOIN " + _name); // :<nickname du user> JOIN <nom channel>
+		std::cout << "addUser" << std::endl;
 		if (user == *it)
 			return;
+	}
 	_connectedUsers.push_back(user);
 }
 
