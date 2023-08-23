@@ -16,9 +16,7 @@ Channel::Channel(User *creator, const std::string &name)
 }
 
 Channel::~Channel()
-{
-	std::cout << "Channel deleted" << std::endl;
-}
+{}
 
 void Channel::addUser(User *user)
 {
