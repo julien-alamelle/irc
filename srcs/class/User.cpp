@@ -1,4 +1,5 @@
 #include "User.hpp"
+#include "Server.hpp"
 
 static bool isValidNickname(std::string nick)
 {
@@ -15,12 +16,19 @@ static bool isValidNickname(std::string nick)
 
 User::User(int socket) : _socket(socket), _passwordOk(false)
 {
-
+	
 }
 
 User::~User()
 {
 	std::cout << "User deleted: " << _socket << std::endl;
+}
+
+void User::sendMessage(const std::string &str) const
+{
+	write(getSocket(), str.c_str(), str.length());
+	write(getSocket(), "\r\n", 2);
+	std::cout << GREEN << getSocket() << ": " << str << END << std::endl;
 }
 
 int User::getSocket() const

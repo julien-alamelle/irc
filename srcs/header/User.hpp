@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <cstring>
+#include <unistd.h>
 #include "Channel.hpp"
 
 class Channel;
@@ -16,6 +17,7 @@ public:
 	virtual ~User();
 
 	int getSocket() const;
+	void sendMessage(const std::string &str) const;
 
 	const std::string &getNickname() const;
 	void setNickname(const std::string &nickname);

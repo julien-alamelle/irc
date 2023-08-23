@@ -258,7 +258,12 @@ void Server::cmdJoin(const Commande &cmd, User *user)
 					Messages::cannotJoinPassowrd(*user, channelName);
 			}
 			else
-				_channels.insert(std::make_pair(channelName, Channel(user)));
+			{
+				Channel newChannel(user, channelName);
+				_channels.insert(std::make_pair(channelName, newChannel));
+				newChannel.addUser(user);
+				// user->sendMessage(user->getNickname() + "JOIN" + channelName);
+			}
 		}
 	}
 }
