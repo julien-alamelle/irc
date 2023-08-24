@@ -19,7 +19,7 @@ public:
 	static void cannotJoinInvite(const User &user, const std::string& channelName);
 	static void cannotJoinPassowrd(const User &user, const std::string& channelName);
 	static void needMoreParams(const User &user, const Commande& cmd);
-	static void incorrectPassword(const User &user);
+	static void passwdMisMatch(const User &user);
 	static void alreadyRegistered(const User &user);
 	static void invalidNickName(const User &user);
 	static void noSuchChannel(const User &user, const std::string& channelName);

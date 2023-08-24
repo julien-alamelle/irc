@@ -29,7 +29,7 @@ void Messages::needMoreParams(const User &user, const Commande& cmd)
 		std::cerr << errorMsg << std::endl;
 }
 
-void Messages::incorrectPassword(const User &user)
+void Messages::passwdMisMatch(const User &user)
 {
 	std::string errorMsg = user.getNickname() + " :Password incorrect";
 	send(user.getSocket(), errorMsg.c_str(), errorMsg.size(), 0);

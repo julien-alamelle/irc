@@ -178,7 +178,7 @@ void Server::cmdPass(const Commande &cmd, User *user)
 		std::cout << user->getSocket() << ": " << "PASS OK\n"; //debug
 	}
 	else
-		Messages::incorrectPassword(*user);
+		Messages::passwdMisMatch(*user);
 }
 
 void Server::cmdUser(const Commande &cmd, User *user)
@@ -243,15 +243,15 @@ void Server::cmdJoin(const Commande &cmd, User *user)
 			const std::map<std::string, Channel>::iterator &channel = _channels.find(channelName);
 			if (channel != _channels.end())
 			{
-				bool passwordOk = (channel->second.isPasswordMode() && cmd.getParams().size() == 2 &&
-								   channel->second.isPasswordValid(cmd.getParams()[1])) &&
-								  !channel->second.isPasswordMode();
+				// bool passwordOk = (channel->second.isPasswordMode() && cmd.getParams().size() == 2 &&
+				// 				   channel->second.isPasswordValid(cmd.getParams()[1])) &&
+				// 				  !channel->second.isPasswordMode();
 				bool inviteOk = (channel->second.isInviteMode() && channel->second.isInvited(user)) ||
 								!channel->second.isInviteMode();
 
-				if (passwordOk && inviteOk)
-					user->joinChannel(
-							&channel->second); //TODO: send all confirmation message when the channel is joined
+				// if (passwordOk && inviteOk)
+				if (inviteOk)
+					user->joinChannel(&channel->second); //TODO: send all confirmation message when the channel is joined
 				else if (!inviteOk)
 					Messages::cannotJoinInvite(*user, channelName);
 				else
