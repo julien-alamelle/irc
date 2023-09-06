@@ -141,6 +141,8 @@ void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 				cmdUser(cmd, user);
 			else if (cmd.getCommande() == "NICK")
 				cmdNick(cmd, user);
+			else if (cmd.getCommande() == "MODE")
+				cmdMode(cmd, user);
 		}
 		else
 		{
@@ -198,6 +200,88 @@ void Server::cmdNick(const Commande &cmd, User *user)
 		}
 	}
 }
+
+void Server::cmdMode(const Commande &cmd, User *user)
+{
+	if (cmd.getParams().size() < 2)
+	{
+		std::cout << "MODE: incorrect number of args " << cmd.getParams().size() << std::endl;
+		return;
+	}
+	std::map<std::string, Channel>::iterator channelIT = this->_channel.find(cmd.getParams().at(0));
+	if (channelIT == this->_channel.end())
+	{
+		std::cout << "MODE: the channel does not exist " << cmd.getParams().at(0) << std::endl;
+		return;
+	}
+	if (!channelIT->second().isOperator(user))
+	{
+		std::cout << "MODE: user is not operator" << std::endl;
+		return;
+	}
+	int nbARG = 2;
+	bool	mode = false;
+	std::string modes = cmd.getParams().at(1);
+	if (modes.lenght <= 1 || (modes[0] != '+' && modes[0] != '-'))
+	{
+		std::cout << "MODE: invalide option " << modes << std::endl;
+		return;
+	}
+	if (modes[0] == '+') mode = true;
+	std::string::iterator it = modes.begin();
+	++it;
+	while (it != modes.end())
+	{
+		switch (*it)
+		{
+		case 'i':
+			channelIT->second().setInviteMode(mode);
+			break;
+
+		case 't':
+			channelIT->second().setTopicMode(mode);
+			break;
+
+		case 'k':
+			if (mode)
+			{
+				if (cmd.getParams().size() < nbARG + 1)
+				{
+					std::cout << "MODE: no matching argument with k" << std::endl;
+					return;
+				}
+				channelIT->second().setPassword(cmd.getParams().at(nbARG));
+				++nbARG;
+			}
+			else channelIT->second().setPassword("");
+			break;
+
+		case 'o':
+			User *opArg =
+			break;
+
+		case 'l':
+			if (mode)
+			{
+				if (cmd.getParams().size() < nbARG + 1)
+				{
+					std::cout << "MODE: no matching argument with k" << std::endl;
+					return;
+				}
+				int lim = cmd.getParams().at(nbARG); //TODO
+				channelIT->second().setUserLimit(lim);
+				++nbARG;
+			}
+			else channelIT->second().setUserLimit(-1);
+			break;
+
+		default:
+			std::cout << "MODE: invalide option " << modes << std::endl;
+			return;
+		}
+	}
+}
+
 
 
 /* EXCEPTIONS */
