@@ -1,4 +1,5 @@
 #include "User.hpp"
+#include "Server.hpp"
 
 static bool isValidNickname(std::string nick)
 {
@@ -13,9 +14,9 @@ static bool isValidNickname(std::string nick)
 	return false;
 }
 
-User::User(int socket) : _socket(socket), _connectedChannel(NULL), _passwordOk(false)
+User::User(int socket) : _socket(socket), _passwordOk(false)
 {
-
+	
 }
 
 User::~User()
@@ -23,14 +24,16 @@ User::~User()
 	std::cout << "User deleted: " << _socket << std::endl;
 }
 
+void User::sendMessage(const std::string &str) const
+{
+	write(getSocket(), str.c_str(), str.length());
+	write(getSocket(), "\r\n", 2);
+	std::cout << GREEN << getSocket() << ": " << str << END << std::endl;
+}
+
 int User::getSocket() const
 {
 	return _socket;
-}
-
-Channel *User::getConnectedChannel() const
-{
-	return _connectedChannel;
 }
 
 const std::string &User::getNickname() const
@@ -75,7 +78,28 @@ void User::setRealname(const std::string &realname)
 {
 	_realname = realname;
 }
+/*
+void User::joinChannel(Channel *channel)
+{
+	_connectedChannels.push_back(channel);
+	channel->addUser(this);
+}*/
 
+void User::leaveChannel(Channel *channel)
+{
+	std::vector<Channel *>::iterator chan = std::find(_connectedChannels.begin(), _connectedChannels.end(), channel);
+	if (chan != _connectedChannels.end())
+		_connectedChannels.erase(chan);
+}
+
+void User::leaveAllChannels()
+{
+	for (std::vector<Channel *>::iterator it = _connectedChannels.begin(); it < _connectedChannels.end(); it++)
+	{
+		(*it)->removeUser(this);
+		_connectedChannels.erase(it);
+	}
+}
 
 
 /* EXCEPTIONS */

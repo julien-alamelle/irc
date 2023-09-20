@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include <cstring>
+#include <unistd.h>
 #include "Channel.hpp"
 
 class Channel;
@@ -16,8 +17,7 @@ public:
 	virtual ~User();
 
 	int getSocket() const;
-
-	Channel *getConnectedChannel() const;
+	void sendMessage(const std::string &str) const;
 
 	const std::string &getNickname() const;
 	void setNickname(const std::string &nickname);
@@ -31,14 +31,17 @@ public:
 	const std::string &getRealname() const;
 	void setRealname(const std::string &realname);
 
+//	void joinChannel(Channel *channel);
+	void leaveChannel(Channel *channel);
+	void leaveAllChannels();
 
 private:
-	int			_socket;
-	std::string	_nickname;
-	std::string	_username;
-	std::string	_realname;
-	Channel 	*_connectedChannel;
-	bool		_passwordOk;
+	const int				_socket;
+	std::string				_nickname;
+	std::string				_username;
+	std::string				_realname;
+	std::vector<Channel *>	_connectedChannels;
+	bool					_passwordOk;
 
 
 /* EXCEPTIONS */
