@@ -154,6 +154,10 @@ void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 				this->cmdNick(cmd, user);
 			else if (cmd.getCommande() == "MODE")
 				this->cmdMode(cmd, user);
+			else if (cmd.getCommande() == "JOIN")
+				this->cmdJoin(cmd, user);
+			else if (cmd.getCommande() == "INVITE")
+				this->cmdInvi(cmd, user);
 		}
 		else
 		{
@@ -277,7 +281,7 @@ void Server::cmdMode(const Commande &cmd, User *user)
 			User *opArg = this->findUser(cmd.getParams().at(nbARG));
 			if (!opArg)
 			{
-				std::cout << "MODE: no such user " << cmd.getParams().at(nbARG) << std::endl;
+				std::cout << "MODE: the user does not exist " << cmd.getParams().at(nbARG) << std::endl;
 				return;
 			}
 			channelIT->second.setOperator(opArg, mode);
@@ -313,6 +317,51 @@ void Server::cmdMode(const Commande &cmd, User *user)
 	}
 }
 
+void Server::cmdJoin(const Commande &cmd, User *user)
+{
+	if (cmd.getParams().size() < 1 || cmd.getParams().size() > 2)
+	{
+		std::cout << "JOIN: incorrect number of args " << cmd.getParams().size() << std::endl;
+		return;
+	}
+	std::map<std::string, Channel>::iterator channelIT = this->_channels.find(cmd.getParams().at(0));
+	if (channelIT == this->_channels.end())
+	{
+		std::cout << "JOIN: the channel does not exist " << cmd.getParams().at(0) << std::endl;
+		return;
+	}
+	std::string key = "";
+	if (cmd.getParams().size() == 2)
+		key = cmd.getParams().at(1);
+	channelIT->second.addUser(user, key);
+}
+
+void Server::cmdInvi(const Commande &cmd, User *user)
+{
+	if (cmd.getParams().size() != 1)
+	{
+		std::cout << "INVITE: incorrect number of args " << cmd.getParams().size() << std::endl;
+		return;
+	}
+	User *invArg = this->findUser(cmd.getParams().at(0));
+	if (!invArg)
+	{
+		std::cout << "INVITE: the user does not exist " << cmd.getParams().at(0) << std::endl;
+		return;
+	}
+	std::map<std::string, Channel>::iterator channelIT = this->_channels.find(cmd.getParams().at(1));
+	if (channelIT == this->_channels.end())
+	{
+		std::cout << "INVITE: the channel does not exist " << cmd.getParams().at(1) << std::endl;
+		return;
+	}
+	if (!(channelIT->second.isOperator(user)))
+	{
+		std::cout << "INVITE: user is not operator" << std::endl;
+		return;
+	}
+	channelIT->second.inviteUser(invArg);
+}
 
 
 /* EXCEPTIONS */

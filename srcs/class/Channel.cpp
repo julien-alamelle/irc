@@ -20,8 +20,12 @@ Channel::~Channel()
 	std::cout << "Channel deleted" << std::endl;
 }
 
-void	Channel::addUser(User *user)
+void	Channel::addUser(User *user, std::string key)
 {
+	if (this->_userLimit >= 0 && static_cast<int>(this->_connectedUsers.size()) >= this->_userLimit)
+		return;
+	if (this->_passwordMode && key != this->_password)
+		return;
 	for (vecusit it = this->_connectedUsers.begin(); it < this->_connectedUsers.end(); ++it)
 	{
 		if (user == *it)
@@ -29,7 +33,36 @@ void	Channel::addUser(User *user)
 			return;
 		}
 	}
+	if (this->_inviteMode)
+	{
+		for (vecusit it = this->_invites.begin(); it < this->_invites.end(); ++it)
+		{
+			if (user == *it)
+			{
+				this->_invites.erase(it);
+				break;
+			}
+		}
+		return;
+	}
 	this->_connectedUsers.push_back(user);
+}
+
+void	Channel::inviteUser(User *user)
+{
+	if (!this->_inviteMode)
+		return;
+	for (vecusit it = this->_connectedUsers.begin(); it < this->_connectedUsers.end(); ++it)
+	{
+		if (user == *it)
+			return;
+	}
+	for (vecusit it = this->_invites.begin(); it < this->_invites.end(); ++it)
+	{
+		if (user == *it)
+			return;
+	}
+	this->_invites.push_back(user);
 }
 
 void	Channel::delUser(User *user)

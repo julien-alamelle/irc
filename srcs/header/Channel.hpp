@@ -18,7 +18,8 @@ public:
 
 	virtual ~Channel();
 
-	void	addUser(User *user);
+	void	addUser(User *user, std::string key);
+	void	inviteUser(User *user);
 	void	delUser(User *user);
 	bool	isOperator(User *user);
 	void	setInviteMode(bool mode);
@@ -30,6 +31,7 @@ public:
 private:
 	std::vector<User *>	_connectedUsers;
 	std::vector<User *>	_operators;
+	std::vector<User *>	_invites;
 	std::string			_topic;
 	bool				_inviteMode;
 	bool				_topicMode;
