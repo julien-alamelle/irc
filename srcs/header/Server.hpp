@@ -34,14 +34,18 @@ private:
 	int								_port;
 	std::string						_password;
 
+
+	User* findUser(std::string);
+
 	void newConnexion();
 	void newMessage(std::vector<pollfd>::iterator it);
 	void disconnexion(std::vector<pollfd>::iterator it);
 	void handleMessage(char *buffer, std::vector<pollfd>::iterator it);
 
 	/* COMMANDS */
-	static void cmdUser(const Commande& cmd, User *user);
-	static void cmdNick(const Commande& cmd, User *user);
+	void cmdUser(const Commande& cmd, User *user);
+	void cmdNick(const Commande& cmd, User *user);
+	void cmdMode(const Commande& cmd, User *user);
 
 /* EXCEPTIONS */
 public:

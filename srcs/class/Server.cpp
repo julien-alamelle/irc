@@ -1,5 +1,6 @@
 #include "../header/Server.hpp"
 #include "Commande.hpp"
+#include <cstdlib>
 
 Server::Server(int port, const std::string &password) : _port(port), _password(password)
 {
@@ -25,6 +26,16 @@ Server::Server(int port, const std::string &password) : _port(port), _password(p
 
 	pollfd server = {_serverSocket, POLLIN, 0};
 	_clientSockets.push_back(server);
+}
+
+User* Server::findUser(std::string user)
+{
+	std::map<int, User>::iterator it, end;
+	end = this->_clients.end();
+	for (it = this->_clients.begin(); it != end; ++it)
+		if (it->second.getNickname() == user)
+			return &(it->second);
+	return 0;
 }
 
 void Server::start(int &keep)
@@ -138,11 +149,11 @@ void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 		{
 //			std::cout << it->fd << ": COMMAND: " << cmd.getCommande() << "|" << std::endl; //debug
 			if (cmd.getCommande() == "USER")
-				cmdUser(cmd, user);
+				this->cmdUser(cmd, user);
 			else if (cmd.getCommande() == "NICK")
-				cmdNick(cmd, user);
+				this->cmdNick(cmd, user);
 			else if (cmd.getCommande() == "MODE")
-				cmdMode(cmd, user);
+				this->cmdMode(cmd, user);
 		}
 		else
 		{
@@ -208,21 +219,21 @@ void Server::cmdMode(const Commande &cmd, User *user)
 		std::cout << "MODE: incorrect number of args " << cmd.getParams().size() << std::endl;
 		return;
 	}
-	std::map<std::string, Channel>::iterator channelIT = this->_channel.find(cmd.getParams().at(0));
-	if (channelIT == this->_channel.end())
+	std::map<std::string, Channel>::iterator channelIT = this->_channels.find(cmd.getParams().at(0));
+	if (channelIT == this->_channels.end())
 	{
 		std::cout << "MODE: the channel does not exist " << cmd.getParams().at(0) << std::endl;
 		return;
 	}
-	if (!channelIT->second().isOperator(user))
+	if (!channelIT->second.isOperator(user))
 	{
 		std::cout << "MODE: user is not operator" << std::endl;
 		return;
 	}
-	int nbARG = 2;
+	unsigned long nbARG = 2;
 	bool	mode = false;
 	std::string modes = cmd.getParams().at(1);
-	if (modes.lenght <= 1 || (modes[0] != '+' && modes[0] != '-'))
+	if (modes.length() <= 1 || (modes[0] != '+' && modes[0] != '-'))
 	{
 		std::cout << "MODE: invalide option " << modes << std::endl;
 		return;
@@ -235,11 +246,11 @@ void Server::cmdMode(const Commande &cmd, User *user)
 		switch (*it)
 		{
 		case 'i':
-			channelIT->second().setInviteMode(mode);
+			channelIT->second.setInviteMode(mode);
 			break;
 
 		case 't':
-			channelIT->second().setTopicMode(mode);
+			channelIT->second.setTopicMode(mode);
 			break;
 
 		case 'k':
@@ -250,29 +261,49 @@ void Server::cmdMode(const Commande &cmd, User *user)
 					std::cout << "MODE: no matching argument with k" << std::endl;
 					return;
 				}
-				channelIT->second().setPassword(cmd.getParams().at(nbARG));
+				channelIT->second.setPassword(cmd.getParams().at(nbARG));
 				++nbARG;
 			}
-			else channelIT->second().setPassword("");
+			else channelIT->second.setPassword("");
 			break;
 
 		case 'o':
-			User *opArg =
+		{
+			if (cmd.getParams().size() < nbARG + 1)
+			{
+				std::cout << "MODE: no matching argument with o" << std::endl;
+				return;
+			}
+			User *opArg = this->findUser(cmd.getParams().at(nbARG));
+			if (!opArg)
+			{
+				std::cout << "MODE: no such user " << cmd.getParams().at(nbARG) << std::endl;
+				return;
+			}
+			channelIT->second.setOperator(opArg, mode);
+			++nbARG;
 			break;
+		}
 
 		case 'l':
 			if (mode)
 			{
 				if (cmd.getParams().size() < nbARG + 1)
 				{
-					std::cout << "MODE: no matching argument with k" << std::endl;
+					std::cout << "MODE: no matching argument with l" << std::endl;
 					return;
 				}
-				int lim = cmd.getParams().at(nbARG); //TODO
-				channelIT->second().setUserLimit(lim);
+				char *end;
+				int lim = strtol(cmd.getParams().at(nbARG).c_str(), &end, 10);
+				if (*end)
+				{
+					std::cout << "MODE: not a valid integer " << cmd.getParams().at(nbARG) << std::endl;
+					return;
+				}
+				channelIT->second.setUserLimit(lim);
 				++nbARG;
 			}
-			else channelIT->second().setUserLimit(-1);
+			else channelIT->second.setUserLimit(-1);
 			break;
 
 		default:

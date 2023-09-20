@@ -39,7 +39,7 @@ void	Channel::delUser(User *user)
 		if (user == *it)
 		{
 			this->_connectedUsers.erase(it);
-			this->unsetOperator(user);
+			this->setOperator(user, false);
 			return;
 		}
 	}
@@ -74,24 +74,26 @@ void	Channel::setPassword(std::string key)
 		this->_passwordMode = true;
 }
 
-void	Channel::setOperator(User *user)
+void	Channel::setOperator(User *user, bool status)
 {
-	for (vecusit it = this->_connectedUsers.begin(); it < this->_connectedUsers.end(); ++it)
+	if (status)
 	{
-		if (user == *it)
+		for (vecusit it = this->_connectedUsers.begin(); it < this->_connectedUsers.end(); ++it)
 		{
-			this->_operators.push_back(user);
-			return;
+			if (user == *it)
+			{
+				this->_operators.push_back(user);
+				return;
+			}
 		}
 	}
-}
-
-void	Channel::unsetOperator(User *user)
-{
-	for (vecusit it = this->_operators.begin(); it < this->_operators.end(); ++it)
+	else
 	{
-		if (user == *it)
-			this->_operators.erase(it);
+		for (vecusit it = this->_operators.begin(); it < this->_operators.end(); ++it)
+		{
+			if (user == *it)
+				this->_operators.erase(it);
+		}
 	}
 }
 

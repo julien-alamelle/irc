@@ -24,8 +24,7 @@ public:
 	void	setInviteMode(bool mode);
 	void	setTopicMode(bool mode);
 	void	setPassword(std::string key);
-	void	setOperator(User *user);
-	void	unsetOperator(User *user);
+	void	setOperator(User *user, bool status);
 	void	setUserLimit(int mode);
 
 private:
