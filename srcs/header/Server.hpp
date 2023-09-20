@@ -48,6 +48,7 @@ private:
 	void cmdMode(const Commande& cmd, User *user);
 	void cmdJoin(const Commande& cmd, User *user);
 	void cmdInvi(const Commande& cmd, User *user);
+	void cmdPMSG(const Commande& cmd, User *user);
 
 /* EXCEPTIONS */
 public:

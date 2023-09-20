@@ -27,6 +27,8 @@ public:
 	void	setPassword(std::string key);
 	void	setOperator(User *user, bool status);
 	void	setUserLimit(int mode);
+	std::vector<User *>::iterator uBegin();
+	std::vector<User *>::iterator uEnd();
 
 private:
 	std::vector<User *>	_connectedUsers;

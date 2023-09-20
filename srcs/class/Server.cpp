@@ -158,6 +158,8 @@ void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 				this->cmdJoin(cmd, user);
 			else if (cmd.getCommande() == "INVITE")
 				this->cmdInvi(cmd, user);
+			else if (cmd.getCommande() == "PRIVMSG")
+				this->cmdPMSG(cmd, user);
 		}
 		else
 		{
@@ -361,6 +363,36 @@ void Server::cmdInvi(const Commande &cmd, User *user)
 		return;
 	}
 	channelIT->second.inviteUser(invArg);
+}
+
+void Server::cmdPMSG(const Commande &cmd, User *user)
+{
+	if (cmd.getParams().size() != 2)
+	{
+		std::cout << "PRIVMSG: incorrect number of args " << cmd.getParams().size() << std::endl;
+		return;
+	}
+	Commande ret(cmd);
+	ret.setPrefix(":" + user->getNickname());
+	User *msgArg = this->findUser(cmd.getParams().at(0));
+	std::map<std::string, Channel>::iterator channelIT = this->_channels.find(cmd.getParams().at(0));
+	std::string response = ret.toString();
+	if (msgArg)
+	{
+		send(msgArg->getSocket(), response.c_str(), response.size(), 0);
+	}
+	else if (channelIT != this->_channels.end())
+	{
+		for (std::vector<User *>::iterator it = channelIT->second.uBegin(); it < channelIT->second.uEnd(); ++it)
+		{
+			send((*it)->getSocket(), response.c_str(), response.size(), 0);
+		}
+	}
+	else
+	{
+		std::cout << "PRIVMSG: the user/channel does not exist " << cmd.getParams().at(0) << std::endl;
+		return;
+	}
 }
 
 

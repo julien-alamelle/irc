@@ -18,6 +18,7 @@ public:
 	void parse(std::string);
 	std::string toString();
 
+	void setPrefix(std::string);
 	const std::string &getPrefix() const;
 	const std::string &getCommande() const;
 	const std::vector<std::string> &getParams() const;

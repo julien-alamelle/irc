@@ -134,3 +134,13 @@ void	Channel::setUserLimit(int mode)
 {
 	this->_userLimit = mode;
 }
+
+vecusit Channel::uBegin()
+{
+	return this->_connectedUsers.begin();
+}
+
+vecusit Channel::uEnd()
+{
+	return this->_connectedUsers.end();
+}
