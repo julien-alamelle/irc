@@ -51,6 +51,8 @@ private:
 	void cmdInvi(const Commande& cmd, User *user);
 	void cmdPMSG(const Commande& cmd, User *user);
 	void cmdPass(const Commande& cmd, User *user);
+	void cmdKick(const Commande& cmd, User *user);
+	void cmdTopi(const Commande& cmd, User *user);
 
 /* EXCEPTIONS */
 public:

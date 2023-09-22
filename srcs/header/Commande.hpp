@@ -22,4 +22,5 @@ public:
 	const std::string &getPrefix() const;
 	const std::string &getCommande() const;
 	const std::vector<std::string> &getParams() const;
+	std::vector<std::string> &getParams();
 };

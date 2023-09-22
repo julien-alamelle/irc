@@ -19,10 +19,16 @@ public:
 
 	virtual ~Channel();
 
-	void	addUser(User *user, std::string key);
+	bool	addUser(User *user, std::string key);
 	void	inviteUser(User *user);
 	void	delUser(User *user);
 	bool	isOperator(const User *user);
+
+	std::string	getTopic();
+	bool	getTopicMode();
+//	std::string	getName();
+
+	void	setTopic(std::string);
 	void	setInviteMode(bool mode);
 	void	setTopicMode(bool mode);
 	void	setPassword(std::string key);

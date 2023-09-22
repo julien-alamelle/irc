@@ -52,10 +52,10 @@ void	Commande::parse(std::string CMD) {
 }
 
 std::string	Commande::toString() {
-	std::string ret = this->prefix + this->commande;
+	std::string ret = this->prefix + " " + this->commande;
 	for (unsigned long i = 0; i < this->params.size(); ++i)
-		ret += this->params.at(i);
-	ret += "\n";
+		ret += " " + this->params.at(i);
+	ret += "\r\n";
 	return ret;
 }
 
@@ -73,6 +73,11 @@ const std::string &Commande::getPrefix() const
 const std::string &Commande::getCommande() const
 {
 	return commande;
+}
+
+std::vector<std::string> &Commande::getParams()
+{
+	return params;
 }
 
 const std::vector<std::string> &Commande::getParams() const

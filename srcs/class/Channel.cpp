@@ -11,7 +11,7 @@ Channel::Channel(User *creator, const std::string &name)
 	_operators.push_back(creator);
 	_topic = "";
 	_inviteMode = false;
-	_topicMode = false;
+	_topicMode = true;
 	_passwordMode = false;
 	_password = "";
 	_name = name;
@@ -21,26 +21,43 @@ Channel::Channel(User *creator, const std::string &name)
 Channel::~Channel()
 {}
 
-void	Channel::addUser(User *user, std::string key)
+bool	Channel::addUser(User *user, std::string key)
 {
 	if (this->_userLimit >= 0 && static_cast<int>(this->_connectedUsers.size()) >= this->_userLimit)
-		return;
+	{
+		std::cout << "too many user\n";
+		return false;
+	}
 	if (this->_passwordMode && key != this->_password)
-		return;
+	{
+		std::cout << "bad pass\n";
+		return false;
+	}
 	for (vecusit it = this->_connectedUsers.begin(); it < this->_connectedUsers.end(); ++it)
 		if (user == *it)
-			return;
+	{
+		std::cout << "already in\n";
+			return false;
+	}
 	if (this->_inviteMode)
 	{
-		for (vecusit it = this->_invites.begin(); it < this->_invites.end(); ++it)
+		vecusit it;
+		for (it = this->_invites.begin(); it < this->_invites.end(); ++it)
 		{
 			if (user == *it)
 			{
 				this->_invites.erase(it);
-				break;
+				for (std::vector<User *>::iterator it = this->_connectedUsers.begin(); it < this->_connectedUsers.end(); ++it)
+				{
+					user->sendMessage(":" + user->getNickname() + " JOIN " + _name); // :<nickname du user> JOIN <nom channel>
+					std::cout << "addUser" << std::endl;
+				}
+				this->_connectedUsers.push_back(user);
+				return true;
 			}
 		}
-		return;
+		std::cout << "not invited\n";
+		return false;
 	}
 	for (std::vector<User *>::iterator it = this->_connectedUsers.begin(); it < this->_connectedUsers.end(); ++it)
 	{
@@ -48,21 +65,31 @@ void	Channel::addUser(User *user, std::string key)
 		std::cout << "addUser" << std::endl;
 	}
 	this->_connectedUsers.push_back(user);
+	return true;
 }
 
 void	Channel::inviteUser(User *user)
 {
 	if (!this->_inviteMode)
+	{
+		std::cout << "not invite mode\n";
 		return;
+	}
 	for (vecusit it = this->_connectedUsers.begin(); it < this->_connectedUsers.end(); ++it)
 	{
 		if (user == *it)
+		{
+		std::cout << "already in\n";
 			return;
+		}
 	}
 	for (vecusit it = this->_invites.begin(); it < this->_invites.end(); ++it)
 	{
 		if (user == *it)
+		{
+		std::cout << "already invited\n";
 			return;
+		}
 	}
 	this->_invites.push_back(user);
 }
@@ -86,6 +113,21 @@ bool	Channel::isOperator(const User *user)
 		if (user == *it)
 			return true;
 	return false;
+}
+
+std::string	Channel::getTopic()
+{
+	return this->_topic;
+}
+
+bool	Channel::getTopicMode()
+{
+	return this->_topicMode;
+}
+
+void	Channel::setTopic(std::string topic)
+{
+	this->_topic = topic;
 }
 
 void	Channel::setInviteMode(bool mode)
