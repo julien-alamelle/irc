@@ -3,8 +3,6 @@
 #include <cstdlib>
 #include "Server.hpp"
 
-std::vector<std::pair<int, std::string> > Server::_toSend;
-
 Server::Server(int port, const std::string &password) : _port(port), _password(password)
 {
 	_serverSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -60,10 +58,15 @@ void Server::start(int &keep)
 		for (unsigned int i = 0; i < _clientSockets.size(); ++i)
 		{
 			std::vector<pollfd>::iterator it = _clientSockets.begin() + i;
-			if (it->fd == _serverSocket && it->revents == POLLIN)
+			if (it->fd == _serverSocket && it->revents & POLLIN)
 				newConnexion();
-			else if (it->revents == POLLIN)
+			else if (it->revents & POLLIN)
 				newMessage(it);
+			if (it->revents & POLLOUT)
+			{
+				//TODO send message
+			}
+			//POLLERR POLLHUP ?
 
 			for (std::map<std::string, Channel>::iterator j = _channels.begin(); j != _channels.end() ; ++j)
 				if (j->second.isEmpty())
@@ -71,11 +74,6 @@ void Server::start(int &keep)
 		}
 	}
 	close(_serverSocket);
-}
-
-void Server::ft_send(int fd, std::string msg)
-{
-	Server::_toSend.push_back(std::make_pair(fd, msg));
 }
 
 void Server::newConnexion()
@@ -92,7 +90,7 @@ void Server::newConnexion()
 		throw ConnexionError();
 	}
 
-	pollfd newClient = {clientSocket, POLLIN, 0};
+	pollfd newClient = {clientSocket, POLLIN | POLLOUT, 0};
 	_clientSockets.push_back(newClient);
 	_clients.insert(std::make_pair(clientSocket, User(clientSocket)));
 
@@ -150,9 +148,10 @@ void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 		cmd.parse(line);
 		response = cmd.toString();    //TODO generate the answer and sent to the right client
 		std::cout << response << std::endl;
-		Server::ft_send(it->fd, response);
 
 		user = &(_clients.find(it->fd)->second);
+		user->addMessage(response);
+
 		if (cmd.getCommande() == "PASS")
 			cmdPass(cmd, user);
 		else if (user->isPasswordOk())

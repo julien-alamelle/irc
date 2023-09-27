@@ -25,7 +25,7 @@ User::~User()
 	std::cout << "User deleted: " << _socket << std::endl;
 }
 
-void User::sendMessage(const std::string &str) const
+void User::sendMessage(const std::string &str) const //TODO remove this send;
 {
 	write(getSocket(), str.c_str(), str.length());
 	write(getSocket(), "\r\n", 2);
@@ -78,6 +78,16 @@ const std::string &User::getRealname() const
 void User::setRealname(const std::string &realname)
 {
 	_realname = realname;
+}
+
+void User::addMessage(std::string msg)
+{
+	this->_toSend.push_back(msg);
+}
+
+std::vector<std::string> &User::getMessages()
+{
+	return this->_toSend;
 }
 
 void User::joinChannel(mscit it)

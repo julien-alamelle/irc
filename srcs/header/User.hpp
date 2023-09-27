@@ -19,32 +19,36 @@ public:
 
 	virtual ~User();
 
-	int getSocket() const;
-	void sendMessage(const std::string &str) const;
+	int		getSocket() const;
+	void	sendMessage(const std::string &str) const;
 
 	const std::string &getNickname() const;
-	void setNickname(const std::string &nickname);
+	void	setNickname(const std::string &nickname);
 
 	bool	isPasswordOk() const;
 	void	setPasswordOk();
 
 	const std::string &getUsername() const;
-	void setUsername(const std::string &username);
+	void	setUsername(const std::string &username);
 
 	const std::string &getRealname() const;
-	void setRealname(const std::string &realname);
+	void	setRealname(const std::string &realname);
 
-	void joinChannel(mscit it);
-	void leaveChannel(mscit it);
-	mscit getChannel();
+	void	addMessage(std::string msg);
+	std::vector<std::string> &getMessages();
+
+	void	joinChannel(mscit it);
+	void	leaveChannel(mscit it);
+	mscit	getChannel();
 
 private:
-	const int				_socket;
-	std::string				_nickname;
-	std::string				_username;
-	std::string				_realname;
-	std::vector<mscit>		_connectedChannels;
-	bool					_passwordOk;
+	const int					_socket;
+	std::string					_nickname;
+	std::string					_username;
+	std::string					_realname;
+	std::vector<mscit>			_connectedChannels;
+	std::vector<std::string>	_toSend;
+	bool						_passwordOk;
 
 
 /* EXCEPTIONS */

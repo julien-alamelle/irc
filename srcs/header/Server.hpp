@@ -25,13 +25,11 @@ class Server
 public:
 	Server(int port, const std::string& password);
 	void start(int &keep);
-	static void ft_send(int fd, std::string msg);
 
 private:
 	std::vector<pollfd>									_clientSockets;
 	std::map<int, User>									_clients;	//fd -> User
 	std::map<std::string, Channel>						_channels;	//Name -> Channel
-	static std::vector<std::pair<int, std::string> >	_toSend;
 	sockaddr_in											_serverAddress;
 	int													_serverSocket;
 	int													_port;

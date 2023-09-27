@@ -209,7 +209,7 @@ void	Channel::setOperator(User *user, bool status)
 			this->_operators.push_back(this->_connectedUsers.front());
 			std::string response = ":ircsrv MODE " + this->_name + " +o " + this->_operators.at(0)->getNickname() + "\r\n";
 			for (vecusit it = this->_connectedUsers.begin(); it != this->_connectedUsers.end(); ++it)
-				Server::ft_send((*it)->getSocket(), response);
+				(*it)->addMessage(response);
 		}
 	}
 }

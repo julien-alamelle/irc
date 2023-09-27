@@ -16,16 +16,16 @@
 class Messages
 {
 public:
-	static void cannotJoinInvite(const User &user, const std::string& channelName);
-	static void cannotJoinPassowrd(const User &user, const std::string& channelName);
-	static void needMoreParams(const User &user, const Commande& cmd);
-	static void incorrectPassword(const User &user);
-	static void alreadyRegistered(const User &user);
-	static void invalidNickName(const User &user);
-	static void noSuchChannel(const User &user, const std::string& channelName);
-	static void notOnChannel(const User &user, const std::string& channelName);
-	static void notOperator(const User &user, const std::string& channelName);
-	static void alreadyOnChannel(const User &user, const std::string& channelName);
+	static void cannotJoinInvite(User &user, const std::string& channelName);
+	static void cannotJoinPassowrd(User &user, const std::string& channelName);
+	static void needMoreParams(User &user, const Commande& cmd);
+	static void incorrectPassword(User &user);
+	static void alreadyRegistered(User &user);
+	static void invalidNickName(User &user);
+	static void noSuchChannel(User &user, const std::string& channelName);
+	static void notOnChannel(User &user, const std::string& channelName);
+	static void notOperator(User &user, const std::string& channelName);
+	static void alreadyOnChannel(User &user, const std::string& channelName);
 };
 
 
