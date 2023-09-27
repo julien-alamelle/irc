@@ -305,9 +305,9 @@ void Server::cmdInvi(const Commande &cmd, User *user)
 
 void Server::cmdPMSG(const Commande &cmd, User *user)
 {
-	if (cmd.getParams().size() != 2)
+	if (cmd.getParams().size() < 2)
 	{
-		std::cout << "PRIVMSG: incorrect number of args " << cmd.getParams().size() << std::endl;
+		std::cout << "PRIVMSG: not enough args " << cmd.getParams().size() << std::endl;
 		return;
 	}
 	Commande ret(cmd);
