@@ -25,15 +25,17 @@ class Server
 public:
 	Server(int port, const std::string& password);
 	void start(int &keep);
+	static void ft_send(int fd, std::string msg);
 
 private:
-	std::vector<pollfd>				_clientSockets;
-	std::map<int, User>				_clients;	//fd -> User
-	std::map<std::string, Channel>	_channels;	//Name -> Channel
-	sockaddr_in						_serverAddress;
-	int								_serverSocket;
-	int								_port;
-	std::string						_password;
+	std::vector<pollfd>									_clientSockets;
+	std::map<int, User>									_clients;	//fd -> User
+	std::map<std::string, Channel>						_channels;	//Name -> Channel
+	static std::vector<std::pair<int, std::string> >	_toSend;
+	sockaddr_in											_serverAddress;
+	int													_serverSocket;
+	int													_port;
+	std::string											_password;
 
 
 	User* findUser(std::string);
@@ -54,6 +56,7 @@ private:
 	void cmdPass(const Commande& cmd, User *user);
 	void cmdKick(const Commande& cmd, User *user);
 	void cmdTopi(const Commande& cmd, User *user);
+	void cmdQuit(const Commande& cmd, User *user);
 
 /* EXCEPTIONS */
 public:
@@ -78,6 +81,5 @@ public:
 	};
 
 };
-
 
 #endif //SERVER_HPP

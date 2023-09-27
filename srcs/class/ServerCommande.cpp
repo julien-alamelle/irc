@@ -71,11 +71,10 @@ static void modeReply(Channel *chan, Commande &cmd, bool mode, char c, std::stri
 		cmd.getParams().at(1) = "-";
 	cmd.getParams().at(1).push_back(c);
 	cmd.getParams().at(2) = arg;
-	std::string reply = cmd.toString();
-	std::cout << reply;
+	std::string response = cmd.toString();
 	for (std::vector<User *>::iterator it = chan->uBegin(); it < chan->uEnd(); ++it)
 	{
-		send((*it)->getSocket(), reply.c_str(), reply.size(), 0);
+		Server::ft_send((*it)->getSocket(), response);
 	}
 }
 
@@ -233,14 +232,14 @@ void Server::cmdJoin(const Commande &cmd, User *user)
 	std::string response = ret.toString();
 	for (std::vector<User *>::iterator it = channelIT->second.uBegin(); it < channelIT->second.uEnd(); ++it)
 	{
-		send((*it)->getSocket(), response.c_str(), response.size(), 0);
+		Server::ft_send((*it)->getSocket(), response);
 	}
 	std::string topic = channelIT->second.getTopic();
 	if (topic.empty())
 		response = ":" + user->getNickname() + " 331 " + user->getNickname() + " " + cmd.getParams().at(0) + " :No topic is set\r\n";
 	else
 		response = ":" + user->getNickname() + " 332 " + user->getNickname() + " " + cmd.getParams().at(0) + " :" + topic + "\r\n";
-	send(user->getSocket(), response.c_str(), response.size(), 0);
+	Server::ft_send(user->getSocket(), response);
 	response = ":" + user->getNickname() + " 353 " + user->getNickname() + " = " + cmd.getParams().at(0) + " :";
 	for (std::vector<User *>::iterator it = channelIT->second.uBegin(); it < channelIT->second.uEnd(); ++it)
 	{
@@ -249,9 +248,9 @@ void Server::cmdJoin(const Commande &cmd, User *user)
 		response += (*it)->getNickname() + " ";
 	}
 	response += "\r\n";
-	send(user->getSocket(), response.c_str(), response.size(), 0);
+	Server::ft_send(user->getSocket(), response);
 	response = ":" + user->getNickname() + " 366 " + user->getNickname() + " " + cmd.getParams().at(0) + " :End of /NAMES list\r\n";
-	send(user->getSocket(), response.c_str(), response.size(), 0);
+	Server::ft_send(user->getSocket(), response);
 }
 
 void Server::cmdInvi(const Commande &cmd, User *user)
@@ -261,27 +260,27 @@ void Server::cmdInvi(const Commande &cmd, User *user)
 	if (cmd.getParams().size() < 2)
 	{
 		response = ":" + user->getNickname() + " 461 " + user->getNickname() + " INVITE :Not enought parameters\r\n";
-		send(user->getSocket(), response.c_str(), response.size(), 0);
+		Server::ft_send(user->getSocket(), response);
 		return;
 	}
 	User *invArg = this->findUser(cmd.getParams().at(0));
 	if (!invArg)
 	{
 		response = ":" + user->getNickname() + " 401 " + user->getNickname() + " " + cmd.getParams().at(0) + ":No such nick/channel\r\n";
-		send(user->getSocket(), response.c_str(), response.size(), 0);
+		Server::ft_send(user->getSocket(), response);
 		return;
 	}
 	std::map<std::string, Channel>::iterator channelIT = this->_channels.find(cmd.getParams().at(1));
 	if (channelIT == this->_channels.end())
 	{
 		response = ":" + user->getNickname() + " 403 " + user->getNickname() + " " + cmd.getParams().at(1) + ":No such channel\r\n";
-		send(user->getSocket(), response.c_str(), response.size(), 0);
+		Server::ft_send(user->getSocket(), response);
 		return;
 	}
 	if (!(channelIT->second.isOperator(user)))
 	{
 		response = ":" + user->getNickname() + " 482 " + user->getNickname() + " " + cmd.getParams().at(1) + ":You're not channel operator\r\n";
-		send(user->getSocket(), response.c_str(), response.size(), 0);
+		Server::ft_send(user->getSocket(), response);
 		return;
 	}
 	int ret = channelIT->second.inviteUser(invArg);
@@ -289,14 +288,14 @@ void Server::cmdInvi(const Commande &cmd, User *user)
 	{
 	case 341:
 		response = ":" + user->getNickname() + " 341 " + user->getNickname() + " " + invArg->getNickname() + " " + cmd.getParams().at(1) + "\r\n";
-		send(user->getSocket(), response.c_str(), response.size(), 0);
+		Server::ft_send(user->getSocket(), response);
 		reply.setPrefix(":" + user->getNickname());
 		response = reply.toString();
-		send(invArg->getSocket(), response.c_str(), response.size(), 0);
+		Server::ft_send(invArg->getSocket(), response);
 		break;
 	case 443:
 		response = ":" + user->getNickname() + " 443 " + user->getNickname() + " " + invArg->getNickname() + " " + cmd.getParams().at(0) + ":is already on channel\r\n";
-		send(user->getSocket(), response.c_str(), response.size(), 0);
+		Server::ft_send(user->getSocket(), response);
 		break;
 	default:
 		std::cerr << "error untreated case cmdInvi\n";
@@ -318,7 +317,7 @@ void Server::cmdPMSG(const Commande &cmd, User *user)
 	std::cout << "PRIVMSG responce: " << response;
 	if (msgArg)
 	{
-		send(msgArg->getSocket(), response.c_str(), response.size(), 0);
+		Server::ft_send(msgArg->getSocket(), response);
 	}
 	else if (channelIT != this->_channels.end())
 	{
@@ -333,7 +332,7 @@ void Server::cmdPMSG(const Commande &cmd, User *user)
 		}
 		for (it = channelIT->second.uBegin(); it < channelIT->second.uEnd(); ++it)
 			if (user != *it)
-				send((*it)->getSocket(), response.c_str(), response.size(), 0);
+				Server::ft_send((*it)->getSocket(), response);
 	}
 	else
 	{
@@ -349,27 +348,27 @@ void Server::cmdKick(const Commande &cmd, User *user)
 	if (cmd.getParams().size() < 2)
 	{
 		response = ":" + user->getNickname() + " 461 " + user->getNickname() + " KICK :Not enought parameters\r\n";
-		send(user->getSocket(), response.c_str(), response.size(), 0);
+		Server::ft_send(user->getSocket(), response);
 		return;
 	}
 	std::map<std::string, Channel>::iterator channelIT = this->_channels.find(cmd.getParams().at(0));
 	if (channelIT == this->_channels.end())
 	{
 		response = ":" + user->getNickname() + " 403 " + user->getNickname() + " " + cmd.getParams().at(0) + ":No such channel\r\n";
-		send(user->getSocket(), response.c_str(), response.size(), 0);
+		Server::ft_send(user->getSocket(), response);
 		return;
 	}
 	User *kickArg = this->findUser(cmd.getParams().at(1));
 	if (!kickArg)
 	{
 		response = ":" + user->getNickname() + " 401 " + user->getNickname() + " " + cmd.getParams().at(1) + ":No such nick/channel\r\n";
-		send(user->getSocket(), response.c_str(), response.size(), 0);
+		Server::ft_send(user->getSocket(), response);
 		return;
 	}
 	if (!(channelIT->second.isOperator(user)))
 	{
 		response = ":" + user->getNickname() + " 482 " + user->getNickname() + " " + cmd.getParams().at(0) + ":You're not channel operator\r\n";
-		send(user->getSocket(), response.c_str(), response.size(), 0);
+		Server::ft_send(user->getSocket(), response);
 		return;
 	}
 
@@ -379,11 +378,11 @@ void Server::cmdKick(const Commande &cmd, User *user)
 			this->delUserFromChannel(channelIT, kickArg);
 			reply.setPrefix(":" + user->getNickname());
 			response = reply.toString();
-			send(kickArg->getSocket(), response.c_str(), response.size(), 0);
+			Server::ft_send(kickArg->getSocket(), response);
 			return ;
 		}
 	response = ":" + user->getNickname() + " 441 " + user->getNickname() + " " + kickArg->getNickname() + " " + cmd.getParams().at(0) + ":they aren't on that channel\r\n";
-	send(user->getSocket(), response.c_str(), response.size(), 0);
+	Server::ft_send(user->getSocket(), response);
 }
 
 void Server::cmdTopi(const Commande &cmd, User *user)
@@ -392,14 +391,14 @@ void Server::cmdTopi(const Commande &cmd, User *user)
 	if (cmd.getParams().size() < 1)
 	{
 		response = ":" + user->getNickname() + " 461 " + user->getNickname() + " TOPIC :Not enought parameters\r\n";
-		send(user->getSocket(), response.c_str(), response.size(), 0);
+		Server::ft_send(user->getSocket(), response);
 		return;
 	}
 	std::map<std::string, Channel>::iterator channelIT = this->_channels.find(cmd.getParams().at(0));
 	if (channelIT == this->_channels.end())
 	{
 		response = ":" + user->getNickname() + " 403 " + user->getNickname() + " " + cmd.getParams().at(0) + ":No such channel\r\n";
-		send(user->getSocket(), response.c_str(), response.size(), 0);
+		Server::ft_send(user->getSocket(), response);
 		return;
 	}
 	std::vector<User *>::iterator it;
@@ -409,7 +408,7 @@ void Server::cmdTopi(const Commande &cmd, User *user)
 	if (it == channelIT->second.uEnd())
 	{
 		response = ":" + user->getNickname() + " 442 " + user->getNickname() + " " + cmd.getParams().at(0) + ":You're not on that channel\r\n";
-		send(user->getSocket(), response.c_str(), response.size(), 0);
+		Server::ft_send(user->getSocket(), response);
 		return;
 	}
 	if (cmd.getParams().size() == 1)
@@ -419,13 +418,13 @@ void Server::cmdTopi(const Commande &cmd, User *user)
 			response = ":" + user->getNickname() + " 331 " + user->getNickname() + " " + cmd.getParams().at(0) + " :No topic is set\r\n";
 		else
 			response = ":" + user->getNickname() + " 332 " + user->getNickname() + " " + cmd.getParams().at(0) + " :" + topic + "\r\n";
-		send(user->getSocket(), response.c_str(), response.size(), 0);
+		Server::ft_send(user->getSocket(), response);
 		return;
 	}
 	if (channelIT->second.getTopicMode() && !channelIT->second.isOperator(user))
 	{
 		response = ":" + user->getNickname() + " 482 " + user->getNickname() + " " + cmd.getParams().at(0) + ":You're not channel operator\r\n";
-		send(user->getSocket(), response.c_str(), response.size(), 0);
+		Server::ft_send(user->getSocket(), response);
 		return;
 	}
 	channelIT->second.setTopic(cmd.getParams().at(1).substr(1));
@@ -433,5 +432,30 @@ void Server::cmdTopi(const Commande &cmd, User *user)
 	reply.setPrefix(":" + user->getNickname());
 	response = reply.toString();
 	for (it = channelIT->second.uBegin(); it < channelIT->second.uEnd(); ++it)
-		send((*it)->getSocket(), response.c_str(), response.size(), 0);
+		Server::ft_send((*it)->getSocket(), response);
+}
+
+void Server::cmdQuit(const Commande &cmd, User *user)
+{
+std::cerr << "QUIT ----------------\n";
+	try
+	{
+		while (true)
+		{
+			std::map<std::string, Channel>::iterator it = user->getChannel();
+			std::string response = ":" + user->getNickname() + " PART " + it->first;
+			if (cmd.getParams().size() > 0)
+			{
+				response += " " + cmd.getParams().at(0);
+			}
+			response += "\r\n";
+			this->delUserFromChannel(it, user);
+			for (std::vector<User *>::iterator it2 = it->second.uBegin(); it2 != it->second.uEnd(); ++it2)
+				Server::ft_send((*it2)->getSocket(), response);
+		}
+	}
+	catch (std::exception &e)
+	{
+		(void) e;
+	}
 }

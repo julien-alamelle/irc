@@ -3,6 +3,7 @@
 //
 
 #include "User.hpp"
+#include "Server.hpp"
 #include "Channel.hpp"
 typedef std::vector<User *>::iterator vecusit;
 
@@ -202,6 +203,13 @@ void	Channel::setOperator(User *user, bool status)
 		{
 			if (user == *it)
 				this->_operators.erase(it);
+		}
+		if (this->_operators.empty() && !this->_connectedUsers.empty())
+		{
+			this->_operators.push_back(this->_connectedUsers.front());
+			std::string response = ":ircsrv MODE " + this->_name + " +o " + this->_operators.at(0)->getNickname() + "\r\n";
+			for (vecusit it = this->_connectedUsers.begin(); it != this->_connectedUsers.end(); ++it)
+				Server::ft_send((*it)->getSocket(), response);
 		}
 	}
 }

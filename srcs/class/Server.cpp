@@ -3,6 +3,8 @@
 #include <cstdlib>
 #include "Server.hpp"
 
+std::vector<std::pair<int, std::string> > Server::_toSend;
+
 Server::Server(int port, const std::string &password) : _port(port), _password(password)
 {
 	_serverSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -69,6 +71,11 @@ void Server::start(int &keep)
 		}
 	}
 	close(_serverSocket);
+}
+
+void Server::ft_send(int fd, std::string msg)
+{
+	Server::_toSend.push_back(std::make_pair(fd, msg));
 }
 
 void Server::newConnexion()
@@ -143,7 +150,7 @@ void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 		cmd.parse(line);
 		response = cmd.toString();    //TODO generate the answer and sent to the right client
 		std::cout << response << std::endl;
-		send(it->fd, response.c_str(), response.size(), 0);
+		Server::ft_send(it->fd, response);
 
 		user = &(_clients.find(it->fd)->second);
 		if (cmd.getCommande() == "PASS")
@@ -167,6 +174,8 @@ void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 				this->cmdKick(cmd, user);
 			else if (cmd.getCommande() == "TOPIC")
 				this->cmdTopi(cmd, user);
+			else if (cmd.getCommande() == "QUIT")
+				this->cmdQuit(cmd, user);
 		}
 		else
 		{
@@ -180,7 +189,7 @@ void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 	/*if (receivedData == "ping\n")
 	{
 		std::cout << "pong" << std::endl;
-		send(it->fd, response.c_str(), response.size(), 0);
+		Server::ft_send(it->fd, response);
 	}*/
 }
 
@@ -189,6 +198,7 @@ void Server::delUserFromChannel(std::map<std::string, Channel>::iterator it, Use
 	it->second.delUser(user);
 	if(it->second.uBegin() == it->second.uEnd())
 		this->_channels.erase(it);
+	user->leaveChannel(it);
 }
 
 

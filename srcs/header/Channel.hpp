@@ -25,7 +25,7 @@ public:
 
 	std::string	getTopic();
 	bool	getTopicMode();
-//	std::string	getName();
+	std::string	getName();
 
 	void	setTopic(std::string);
 	void	setInviteMode(bool mode);
