@@ -64,7 +64,10 @@ void Server::start(int &keep)
 				newMessage(it);
 			if (it->revents & POLLOUT)
 			{
-				//TODO send message
+				std::vector<std::string> &toSend = this->_clients.find(it->fd)->second.getMessages();
+				for (std::vector<std::string>::iterator msg = toSend.begin(); msg != toSend.end(); ++msg)
+					send(it->fd, msg->c_str(), msg->size(), 0);
+				toSend.clear();
 			}
 			//POLLERR POLLHUP ?
 
