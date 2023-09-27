@@ -2,6 +2,7 @@
 // Created by Marius  on 04/07/2023.
 //
 
+#include "User.hpp"
 #include "Channel.hpp"
 typedef std::vector<User *>::iterator vecusit;
 
@@ -68,30 +69,18 @@ bool	Channel::addUser(User *user, std::string key)
 	return true;
 }
 
-void	Channel::inviteUser(User *user)
+int	Channel::inviteUser(User *user)
 {
-	if (!this->_inviteMode)
-	{
-		std::cout << "not invite mode\n";
-		return;
-	}
 	for (vecusit it = this->_connectedUsers.begin(); it < this->_connectedUsers.end(); ++it)
-	{
 		if (user == *it)
-		{
-		std::cout << "already in\n";
-			return;
-		}
-	}
+			return 443;
+	if (!this->_inviteMode)
+		return 341;
 	for (vecusit it = this->_invites.begin(); it < this->_invites.end(); ++it)
-	{
 		if (user == *it)
-		{
-		std::cout << "already invited\n";
-			return;
-		}
-	}
+			return 341;
 	this->_invites.push_back(user);
+	return 341;
 }
 
 void	Channel::delUser(User *user)

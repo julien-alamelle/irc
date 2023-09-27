@@ -1,3 +1,4 @@
+#include "Channel.hpp"
 #include "User.hpp"
 #include "Server.hpp"
 
@@ -78,27 +79,24 @@ void User::setRealname(const std::string &realname)
 {
 	_realname = realname;
 }
-/*
-void User::joinChannel(Channel *channel)
-{
-	_connectedChannels.push_back(channel);
-	channel->addUser(this);
-}*/
 
-void User::leaveChannel(Channel *channel)
+void User::joinChannel(mscit it)
 {
-	std::vector<Channel *>::iterator chan = std::find(_connectedChannels.begin(), _connectedChannels.end(), channel);
+	_connectedChannels.push_back(it);
+}
+
+void User::leaveChannel(mscit it)
+{
+	std::vector<mscit>::iterator chan = std::find(_connectedChannels.begin(), _connectedChannels.end(), it);
 	if (chan != _connectedChannels.end())
 		_connectedChannels.erase(chan);
 }
 
-void User::leaveAllChannels()
+mscit User::getChannel()
 {
-	for (std::vector<Channel *>::iterator it = _connectedChannels.begin(); it < _connectedChannels.end(); it++)
-	{
-		(*it)->removeUser(this);
-		_connectedChannels.erase(it);
-	}
+	if (this->_connectedChannels.empty())
+		throw NoChannel();
+	return	this->_connectedChannels.back();
 }
 
 
@@ -107,4 +105,9 @@ void User::leaveAllChannels()
 const char *User::InvalidNick::what() const throw()
 {
 	return "Invalid nickname";
+}
+
+const char *User::NoChannel::what() const throw()
+{
+	return "No channel";
 }

@@ -6,7 +6,7 @@
 #    By: marobert <marobert@student.42lyon.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/11/28 16:06:19 by marobert          #+#    #+#              #
-#    Updated: 2023/07/22 15:15:33 by marobert         ###   ########.fr        #
+#    Updated: 2023/09/27 14:06:12 by jalamell         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,7 +21,7 @@ ERASE		=	\e[2K\r
 
 DIR_INCS	=	srcs/header
 SRC_DIR		=	srcs
-SRC_FILES	=	main.cpp class/Server.cpp class/User.cpp class/Channel.cpp class/Commande.cpp class/Messages.cpp
+SRC_FILES	=	main.cpp class/Server.cpp class/ServerCommande.cpp class/User.cpp class/Channel.cpp class/Commande.cpp class/Messages.cpp
 SRCS		=	$(addprefix $(SRC_DIR)/, $(SRC_FILES))
 DIR_BUILD	=	.build/
 OBJS		=	$(patsubst %.cpp, $(DIR_BUILD)%.o, $(SRCS))

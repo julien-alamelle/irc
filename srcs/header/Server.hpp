@@ -42,6 +42,7 @@ private:
 	void newMessage(std::vector<pollfd>::iterator it);
 	void disconnexion(std::vector<pollfd>::iterator it);
 	void handleMessage(char *buffer, std::vector<pollfd>::iterator it);
+	void delUserFromChannel(std::map<std::string, Channel>::iterator it, User *user);
 
 	/* COMMANDS */
 	void cmdUser(const Commande& cmd, User *user);

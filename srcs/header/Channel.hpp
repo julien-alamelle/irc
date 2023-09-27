@@ -8,7 +8,6 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
-#include "User.hpp"
 
 class User;
 
@@ -20,7 +19,7 @@ public:
 	virtual ~Channel();
 
 	bool	addUser(User *user, std::string key);
-	void	inviteUser(User *user);
+	int		inviteUser(User *user);
 	void	delUser(User *user);
 	bool	isOperator(const User *user);
 

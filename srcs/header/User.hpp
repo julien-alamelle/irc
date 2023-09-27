@@ -5,9 +5,12 @@
 #include <iostream>
 #include <cstring>
 #include <unistd.h>
-#include "Channel.hpp"
+#include <map>
+#include <vector>
 
 class Channel;
+
+typedef std::map<std::string, Channel>::iterator mscit;
 
 class User
 {
@@ -31,22 +34,26 @@ public:
 	const std::string &getRealname() const;
 	void setRealname(const std::string &realname);
 
-//	void joinChannel(Channel *channel);
-	void leaveChannel(Channel *channel);
-	void leaveAllChannels();
+	void joinChannel(mscit it);
+	void leaveChannel(mscit it);
+	mscit getChannel();
 
 private:
 	const int				_socket;
 	std::string				_nickname;
 	std::string				_username;
 	std::string				_realname;
-	std::vector<Channel *>	_connectedChannels;
+	std::vector<mscit>		_connectedChannels;
 	bool					_passwordOk;
 
 
 /* EXCEPTIONS */
 public:
 	class InvalidNick: public std::exception {
+		virtual const char*	what() const throw();
+	};
+
+	class NoChannel: public std::exception {
 		virtual const char*	what() const throw();
 	};
 };
