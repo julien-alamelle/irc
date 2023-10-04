@@ -375,10 +375,11 @@ void Server::cmdKick(const Commande &cmd, User *user)
 	for (std::vector<User *>::iterator it = channelIT->second.uBegin(); it < channelIT->second.uEnd(); ++it)
 		if (*it == kickArg)
 		{
-			this->delUserFromChannel(channelIT, kickArg);
 			reply.setPrefix(":" + user->getNickname());
 			response = reply.toString();
-			kickArg->addMessage(response);
+			for (std::vector<User *>::iterator it2 = channelIT->second.uBegin(); it < channelIT->second.uEnd(); ++it)
+				(*it2)->addMessage(response);
+			this->delUserFromChannel(channelIT, kickArg);
 			return ;
 		}
 	response = ":" + user->getNickname() + " 441 " + user->getNickname() + " " + kickArg->getNickname() + " " + cmd.getParams().at(0) + ":they aren't on that channel\r\n";
@@ -437,7 +438,6 @@ void Server::cmdTopi(const Commande &cmd, User *user)
 
 void Server::cmdQuit(const Commande &cmd, User *user)
 {
-std::cerr << "QUIT ----------------\n";
 	try
 	{
 		while (true)

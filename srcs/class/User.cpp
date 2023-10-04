@@ -25,13 +25,6 @@ User::~User()
 	std::cout << "User deleted: " << _socket << std::endl;
 }
 
-void User::sendMessage(const std::string &str) const //TODO remove this send;
-{
-	write(getSocket(), str.c_str(), str.length());
-	write(getSocket(), "\r\n", 2);
-	std::cout << GREEN << getSocket() << ": " << str << END << std::endl;
-}
-
 int User::getSocket() const
 {
 	return _socket;

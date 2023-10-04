@@ -49,22 +49,12 @@ bool	Channel::addUser(User *user, std::string key)
 			if (user == *it)
 			{
 				this->_invites.erase(it);
-				for (std::vector<User *>::iterator it = this->_connectedUsers.begin(); it < this->_connectedUsers.end(); ++it)
-				{
-					user->sendMessage(":" + user->getNickname() + " JOIN " + _name); // :<nickname du user> JOIN <nom channel>
-					std::cout << "addUser" << std::endl;
-				}
 				this->_connectedUsers.push_back(user);
 				return true;
 			}
 		}
 		std::cout << "not invited\n";
 		return false;
-	}
-	for (std::vector<User *>::iterator it = this->_connectedUsers.begin(); it < this->_connectedUsers.end(); ++it)
-	{
-		user->sendMessage(":" + user->getNickname() + " JOIN " + _name); // :<nickname du user> JOIN <nom channel>
-		std::cout << "addUser" << std::endl;
 	}
 	this->_connectedUsers.push_back(user);
 	return true;
@@ -123,6 +113,8 @@ void	Channel::setTopic(std::string topic)
 void	Channel::setInviteMode(bool mode)
 {
 	this->_inviteMode = mode;
+	if (!mode)
+		this->_invites.clear();
 }
 
 void	Channel::setTopicMode(bool mode)

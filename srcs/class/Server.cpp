@@ -69,12 +69,15 @@ void Server::start(int &keep)
 					send(it->fd, msg->c_str(), msg->size(), 0);
 				toSend.clear();
 			}
-			//POLLERR POLLHUP ?
+			if (it->revents & POLLERR || it->revents & POLLHUP)
+			{
+				this->disconnexion(it);
+			}
 
-			for (std::map<std::string, Channel>::iterator j = _channels.begin(); j != _channels.end() ; ++j)
+/*			for (std::map<std::string, Channel>::iterator j = _channels.begin(); j != _channels.end() ; ++j)
 				if (j->second.isEmpty())
 					_channels.erase(j);
-		}
+*/		}
 	}
 	close(_serverSocket);
 }
@@ -115,6 +118,8 @@ void Server::newMessage(std::vector<pollfd>::iterator it)
 void Server::disconnexion(std::vector<pollfd>::iterator it)
 {
 //	std::cout << "DISCONNEXION\n";
+	char c[7] = "QUIT\r\n";
+	this->handleMessage(c, it);
 	int fd = it->fd;
 
 	close(fd);
