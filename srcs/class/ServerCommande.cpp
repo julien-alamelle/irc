@@ -155,8 +155,8 @@ void Server::cmdMode(const Commande &cmd, User *user)
 				//std::cout << "MODE: the user does not exist " << cmd.getParams().at(nbARG) << std::endl;
 				return;
 			}
-			channelIT->second.setOperator(opArg, mode);
 			modeReply(&(channelIT->second), reply, mode, *it, cmd.getParams().at(nbARG));
+			channelIT->second.setOperator(opArg, mode);
 			++nbARG;
 			break;
 		}
@@ -377,7 +377,7 @@ void Server::cmdKick(const Commande &cmd, User *user)
 		{
 			reply.setPrefix(":" + user->getNickname());
 			response = reply.toString();
-			for (std::vector<User *>::iterator it2 = channelIT->second.uBegin(); it < channelIT->second.uEnd(); ++it)
+			for (std::vector<User *>::iterator it2 = channelIT->second.uBegin(); it2 < channelIT->second.uEnd(); ++it2)
 				(*it2)->addMessage(response);
 			this->delUserFromChannel(channelIT, kickArg);
 			return ;
