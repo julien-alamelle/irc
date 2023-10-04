@@ -60,6 +60,8 @@ void Server::start(int &keep)
 			std::vector<pollfd>::iterator it = _clientSockets.begin() + i - 1;
 			if (it->fd == _serverSocket && it->revents & POLLIN)
 				newConnexion();
+			else if (it->revents & POLLERR || it->revents & POLLHUP)
+				this->disconnexion(it);
 			else if (it->revents & POLLIN)
 				newMessage(it);
 			else if (it->revents & POLLOUT)
@@ -68,10 +70,6 @@ void Server::start(int &keep)
 				for (std::vector<std::string>::iterator msg = toSend.begin(); msg != toSend.end(); ++msg)
 					send(it->fd, msg->c_str(), msg->size(), 0);
 				toSend.clear();
-			}
-			if (it->revents & POLLERR || it->revents & POLLHUP)
-			{
-				this->disconnexion(it);
 			}
 
 /*			for (std::map<std::string, Channel>::iterator j = _channels.begin(); j != _channels.end() ; ++j)
