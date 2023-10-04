@@ -1,4 +1,3 @@
-#include "../header/Server.hpp"
 #include "Commande.hpp"
 #include <cstdlib>
 #include "Server.hpp"
@@ -69,7 +68,7 @@ void Server::start(int &keep)
 					send(it->fd, msg->c_str(), msg->size(), 0);
 				toSend.clear();
 			}
-			if (it->revents & POLLERR || it->revents & POLLHUP)
+			else if (it->revents & POLLERR || it->revents & POLLHUP)
 			{
 				this->disconnexion(it);
 			}
