@@ -55,14 +55,14 @@ void Server::start(int &keep)
 			throw PollError();
 		}
 
-		for (unsigned int i = 0; i < _clientSockets.size(); ++i)
+		for (unsigned int i = _clientSockets.size(); i > 0; --i)
 		{
-			std::vector<pollfd>::iterator it = _clientSockets.begin() + i;
+			std::vector<pollfd>::iterator it = _clientSockets.begin() + i - 1;
 			if (it->fd == _serverSocket && it->revents & POLLIN)
 				newConnexion();
 			else if (it->revents & POLLIN)
 				newMessage(it);
-			if (it->revents & POLLOUT)
+			else if (it->revents & POLLOUT)
 			{
 				std::vector<std::string> &toSend = this->_clients.find(it->fd)->second.getMessages();
 				for (std::vector<std::string>::iterator msg = toSend.begin(); msg != toSend.end(); ++msg)
