@@ -44,7 +44,7 @@ User* Server::findUser(std::string user)
 
 void Server::start(int &keep)
 {
-	std::cout << "IRC Server awaiting on port " << _port << "." << std::endl;
+	//std::cout << "IRC Server awaiting on port " << _port << "." << std::endl;
 
 	while (keep)
 	{
@@ -81,7 +81,7 @@ void Server::start(int &keep)
 
 void Server::newConnexion()
 {
-//	std::cout << "NEW\n";
+//	//std::cout << "NEW\n";
 	sockaddr_in clientAddress = {};
 	socklen_t clientAddressLength = sizeof(clientAddress);
 
@@ -97,12 +97,12 @@ void Server::newConnexion()
 	_clientSockets.push_back(newClient);
 	_clients.insert(std::make_pair(clientSocket, User(clientSocket)));
 
-	std::cout << GREEN << "New connexion. Socket : " << clientSocket << END << std::endl;
+	//std::cout << GREEN << "New connexion. Socket : " << clientSocket << END << std::endl;
 }
 
 void Server::newMessage(std::vector<pollfd>::iterator it)
 {
-//	std::cout << "MSG\n";
+//	//std::cout << "MSG\n";
 	char buffer[512];
 	memset(buffer, 0, sizeof(buffer));
 
@@ -114,14 +114,13 @@ void Server::newMessage(std::vector<pollfd>::iterator it)
 
 void Server::disconnexion(std::vector<pollfd>::iterator it)
 {
-//	std::cout << "DISCONNEXION\n";
+//	//std::cout << "DISCONNEXION\n";
 	char c[7] = "QUIT\r\n";
 	this->handleMessage(c, it);
 	int fd = it->fd;
 
 	close(fd);
-	std::cout << RED << "Disconnected client. Socket : " << _clients.find(fd)->second.getSocket() << END
-			  << std::endl;
+	//std::cout << RED << "Disconnected client. Socket : " << _clients.find(fd)->second.getSocket() << END << std::endl;
 
 	_clients.erase(fd);
 	_clientSockets.erase(it);
@@ -129,11 +128,11 @@ void Server::disconnexion(std::vector<pollfd>::iterator it)
 
 void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 {
-//	std::cout << "HANDLE MSG\n";
+//	//std::cout << "HANDLE MSG\n";
 
-	std::string response = "pong\n";
+	std::string response;// = "pong\n";
 	std::string receivedData(buffer);
-//	std::cout << CYAN << "FULL " << it->fd << ": " << receivedData << END;
+//	//std::cout << CYAN << "FULL " << it->fd << ": " << receivedData << END;
 
 	Commande cmd;
 	User *user;
@@ -149,19 +148,19 @@ void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 		if (!line.empty() && *line.rbegin() == '\r')
 			line = line.substr(0, line.size() - 1);
 
-		std::cout << CYAN << it->fd << ": " << line << END << std::endl;
+		//std::cout << CYAN << it->fd << ": " << line << END << std::endl;
 		cmd.parse(line);
-		response = cmd.toString();    //TODO generate the answer and sent to the right client
-		std::cout << response << std::endl;
+//		response = cmd.toString();
+		//std::cout << response << std::endl;
 
 		user = &(_clients.find(it->fd)->second);
-		user->addMessage(response);
+//		user->addMessage(response);
 
 		if (cmd.getCommande() == "PASS")
 			cmdPass(cmd, user);
 		else if (user->isPasswordOk())
 		{
-//			std::cout << it->fd << ": COMMAND: " << cmd.getCommande() << "|" << std::endl; //debug
+//			//std::cout << it->fd << ": COMMAND: " << cmd.getCommande() << "|" << std::endl; //debug
 			if (cmd.getCommande() == "USER")
 				this->cmdUser(cmd, user);
 			else if (cmd.getCommande() == "NICK")
@@ -183,7 +182,7 @@ void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 		}
 		else
 		{
-			std::cerr << "Not logged" << std::endl;
+			//std::cerr << "Not logged" << std::endl;
 		}
 
 		receivedData.erase(0, newLine + 1);
@@ -192,7 +191,7 @@ void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 //	 To send message to client :
 	/*if (receivedData == "ping\n")
 	{
-		std::cout << "pong" << std::endl;
+		//std::cout << "pong" << std::endl;
 		Server::ft_send(it->fd, response);
 	}*/
 }

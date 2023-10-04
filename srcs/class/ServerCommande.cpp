@@ -13,7 +13,7 @@ void Server::cmdPass(const Commande &cmd, User *user)
 	if (cmd.getParams()[0] == _password)
 	{
 		user->setPasswordOk();
-		std::cout << user->getSocket() << ": " << "PASS OK\n"; //debug
+		//std::cout << user->getSocket() << ": " << "PASS OK\n"; //debug
 	}
 	else
 		Messages::incorrectPassword(*user);
@@ -51,12 +51,12 @@ void Server::cmdNick(const Commande &cmd, User *user)
 		try
 		{
 			user->setNickname(cmd.getParams()[0]);
-			std::cout << "New NICK:" << user->getNickname() << std::endl;
+			//std::cout << "New NICK:" << user->getNickname() << std::endl;
 		}
 		catch (std::exception &e)
 		{
 			Messages::invalidNickName(*user);
-			std::cerr << e.what() << std::endl;
+			//std::cerr << e.what() << std::endl;
 			// Invalid nick
 		}
 	}
@@ -81,18 +81,18 @@ void Server::cmdMode(const Commande &cmd, User *user)
 {
 	if (cmd.getParams().size() < 2)
 	{
-		std::cout << "MODE: incorrect number of args " << cmd.getParams().size() << std::endl;
+		//std::cout << "MODE: incorrect number of args " << cmd.getParams().size() << std::endl;
 		return;
 	}
 	std::map<std::string, Channel>::iterator channelIT = this->_channels.find(cmd.getParams().at(0));
 	if (channelIT == this->_channels.end())
 	{
-		std::cout << "MODE: the channel does not exist " << cmd.getParams().at(0) << std::endl;
+		//std::cout << "MODE: the channel does not exist " << cmd.getParams().at(0) << std::endl;
 		return;
 	}
 	if (!channelIT->second.isOperator(user))
 	{
-		std::cout << "MODE: user is not operator" << std::endl;
+		//std::cout << "MODE: user is not operator" << std::endl;
 		return;
 	}
 	unsigned long nbARG = 2;
@@ -100,7 +100,7 @@ void Server::cmdMode(const Commande &cmd, User *user)
 	std::string modes = cmd.getParams().at(1);
 	if (modes.length() <= 1 || (modes[0] != '+' && modes[0] != '-'))
 	{
-		std::cout << "MODE: invalide option " << modes << std::endl;
+		//std::cout << "MODE: invalide option " << modes << std::endl;
 		return;
 	}
 	Commande reply(cmd);
@@ -128,7 +128,7 @@ void Server::cmdMode(const Commande &cmd, User *user)
 			{
 				if (cmd.getParams().size() < nbARG + 1)
 				{
-					std::cout << "MODE: no matching argument with k" << std::endl;
+					//std::cout << "MODE: no matching argument with k" << std::endl;
 					return;
 				}
 				channelIT->second.setPassword(cmd.getParams().at(nbARG));
@@ -146,13 +146,13 @@ void Server::cmdMode(const Commande &cmd, User *user)
 		{
 			if (cmd.getParams().size() < nbARG + 1)
 			{
-				std::cout << "MODE: no matching argument with o" << std::endl;
+				//std::cout << "MODE: no matching argument with o" << std::endl;
 				return;
 			}
 			User *opArg = this->findUser(cmd.getParams().at(nbARG));
 			if (!opArg)
 			{
-				std::cout << "MODE: the user does not exist " << cmd.getParams().at(nbARG) << std::endl;
+				//std::cout << "MODE: the user does not exist " << cmd.getParams().at(nbARG) << std::endl;
 				return;
 			}
 			channelIT->second.setOperator(opArg, mode);
@@ -166,14 +166,14 @@ void Server::cmdMode(const Commande &cmd, User *user)
 			{
 				if (cmd.getParams().size() < nbARG + 1)
 				{
-					std::cout << "MODE: no matching argument with l" << std::endl;
+					//std::cout << "MODE: no matching argument with l" << std::endl;
 					return;
 				}
 				char *end;
 				int lim = strtol(cmd.getParams().at(nbARG).c_str(), &end, 10);
 				if (*end)
 				{
-					std::cout << "MODE: not a valid integer " << cmd.getParams().at(nbARG) << std::endl;
+					//std::cout << "MODE: not a valid integer " << cmd.getParams().at(nbARG) << std::endl;
 					return;
 				}
 				channelIT->second.setUserLimit(lim);
@@ -188,7 +188,7 @@ void Server::cmdMode(const Commande &cmd, User *user)
 			break;
 
 		default:
-			std::cout << "MODE: invalide option " << modes << std::endl;
+			//std::cout << "MODE: invalide option " << modes << std::endl;
 			return;
 		}
 		++it;
@@ -199,12 +199,12 @@ void Server::cmdJoin(const Commande &cmd, User *user)
 {
 	if (cmd.getParams().size() < 1 || cmd.getParams().size() > 2)
 	{
-		std::cout << "JOIN: incorrect number of args " << cmd.getParams().size() << std::endl;
+		//std::cout << "JOIN: incorrect number of args " << cmd.getParams().size() << std::endl;
 		return;
 	}
 	if (cmd.getParams().at(0).at(0) != '#')
 	{
-		std::cout << "JOIN: invalide channel name " << cmd.getParams().at(0) << std::endl;
+		//std::cout << "JOIN: invalide channel name " << cmd.getParams().at(0) << std::endl;
 		return;
 	}
 	std::map<std::string, Channel>::iterator channelIT = this->_channels.find(cmd.getParams().at(0));
@@ -221,7 +221,7 @@ void Server::cmdJoin(const Commande &cmd, User *user)
 			key = cmd.getParams().at(1);
 		if (!channelIT->second.addUser(user, key))
 		{
-			std::cout <<"JOIN: fail to join the channel\n";
+			//std::cout <<"JOIN: fail to join the channel\n";
 			return;
 		}
 	}
@@ -297,7 +297,8 @@ void Server::cmdInvi(const Commande &cmd, User *user)
 		user->addMessage(response);
 		break;
 	default:
-		std::cerr << "error untreated case cmdInvi\n";
+//		std::cerr << "error untreated case cmdInvi\n";
+		break;
 	}
 }
 
@@ -305,7 +306,7 @@ void Server::cmdPMSG(const Commande &cmd, User *user)
 {
 	if (cmd.getParams().size() != 2)
 	{
-		std::cout << "PRIVMSG: incorrect number of args " << cmd.getParams().size() << std::endl;
+		//std::cout << "PRIVMSG: incorrect number of args " << cmd.getParams().size() << std::endl;
 		return;
 	}
 	Commande ret(cmd);
@@ -313,7 +314,7 @@ void Server::cmdPMSG(const Commande &cmd, User *user)
 	User *msgArg = this->findUser(cmd.getParams().at(0));
 	std::map<std::string, Channel>::iterator channelIT = this->_channels.find(cmd.getParams().at(0));
 	std::string response = ret.toString();
-	std::cout << "PRIVMSG responce: " << response;
+	//std::cout << "PRIVMSG responce: " << response;
 	if (msgArg)
 	{
 		msgArg->addMessage(response);
@@ -326,7 +327,7 @@ void Server::cmdPMSG(const Commande &cmd, User *user)
 				break;
 		if (it == channelIT->second.uEnd())
 		{
-			std::cout << "PRIVMSG: user is not a member of this channel\n";
+			//std::cout << "PRIVMSG: user is not a member of this channel\n";
 			return;
 		}
 		for (it = channelIT->second.uBegin(); it < channelIT->second.uEnd(); ++it)
@@ -335,7 +336,7 @@ void Server::cmdPMSG(const Commande &cmd, User *user)
 	}
 	else
 	{
-		std::cout << "PRIVMSG: the user/channel does not exist " << cmd.getParams().at(0) << std::endl;
+		//std::cout << "PRIVMSG: the user/channel does not exist " << cmd.getParams().at(0) << std::endl;
 		return;
 	}
 }
@@ -449,6 +450,8 @@ void Server::cmdQuit(const Commande &cmd, User *user)
 			}
 			response += "\r\n";
 			this->delUserFromChannel(it, user);
+			if (user->getChannel() == this->_channels.end())
+				break;
 			for (std::vector<User *>::iterator it2 = it->second.uBegin(); it2 != it->second.uEnd(); ++it2)
 				(*it2)->addMessage(response);
 		}

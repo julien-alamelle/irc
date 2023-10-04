@@ -27,18 +27,18 @@ bool	Channel::addUser(User *user, std::string key)
 {
 	if (this->_userLimit >= 0 && static_cast<int>(this->_connectedUsers.size()) >= this->_userLimit)
 	{
-		std::cout << "too many user\n";
+//		//std::cout << "too many user\n";
 		return false;
 	}
 	if (this->_passwordMode && key != this->_password)
 	{
-		std::cout << "bad pass\n";
+//		//std::cout << "bad pass\n";
 		return false;
 	}
 	for (vecusit it = this->_connectedUsers.begin(); it < this->_connectedUsers.end(); ++it)
 		if (user == *it)
 	{
-		std::cout << "already in\n";
+//		//std::cout << "already in\n";
 			return false;
 	}
 	if (this->_inviteMode)
@@ -53,7 +53,7 @@ bool	Channel::addUser(User *user, std::string key)
 				return true;
 			}
 		}
-		std::cout << "not invited\n";
+		//std::cout << "not invited\n";
 		return false;
 	}
 	this->_connectedUsers.push_back(user);

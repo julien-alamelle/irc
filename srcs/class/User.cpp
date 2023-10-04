@@ -22,7 +22,7 @@ User::User(int socket) : _socket(socket), _passwordOk(false)
 
 User::~User()
 {
-	std::cout << "User deleted: " << _socket << std::endl;
+	//std::cout << "User deleted: " << _socket << std::endl;
 }
 
 int User::getSocket() const

@@ -8,7 +8,7 @@
 
 void Messages::cannotJoinInvite(User &user, const std::string& channelName)
 {
-	std::string errorMsg = user.getNickname() + " " + channelName + " :Cannot join channel (+i)";
+	std::string errorMsg = user.getNickname() + " " + channelName + " :Cannot join channel (+i)\n";
 	user.addMessage(errorMsg);
 	if (DEBUG)
 		std::cerr << errorMsg << std::endl;
@@ -16,7 +16,7 @@ void Messages::cannotJoinInvite(User &user, const std::string& channelName)
 
 void Messages::cannotJoinPassowrd(User &user, const std::string& channelName)
 {
-	std::string errorMsg = user.getNickname() + " " + channelName + " :Cannot join channel (+k)";
+	std::string errorMsg = user.getNickname() + " " + channelName + " :Cannot join channel (+k)\n";
 	user.addMessage(errorMsg);
 	if (DEBUG)
 		std::cerr << errorMsg << std::endl;
@@ -24,7 +24,7 @@ void Messages::cannotJoinPassowrd(User &user, const std::string& channelName)
 
 void Messages::needMoreParams(User &user, const Commande& cmd)
 {
-	std::string errorMsg = user.getNickname() + " " + cmd.getCommande() + " :Not enough parameter";
+	std::string errorMsg = user.getNickname() + " " + cmd.getCommande() + " :Not enough parameter\n";
 	user.addMessage(errorMsg);
 	if (DEBUG)
 		std::cerr << errorMsg << std::endl;
@@ -32,7 +32,7 @@ void Messages::needMoreParams(User &user, const Commande& cmd)
 
 void Messages::incorrectPassword(User &user)
 {
-	std::string errorMsg = user.getNickname() + " :Password incorrect";
+	std::string errorMsg = user.getNickname() + " :Password incorrect\n";
 	user.addMessage(errorMsg);
 	if (DEBUG)
 		std::cerr << errorMsg << std::endl;
@@ -40,7 +40,7 @@ void Messages::incorrectPassword(User &user)
 
 void Messages::alreadyRegistered(User &user)
 {
-	std::string errorMsg = user.getNickname() + " :You may not reregister";
+	std::string errorMsg = user.getNickname() + " :You may not reregister\n";
 	user.addMessage(errorMsg);
 	if (DEBUG)
 		std::cerr << errorMsg << std::endl;
@@ -48,7 +48,7 @@ void Messages::alreadyRegistered(User &user)
 
 void Messages::invalidNickName(User &user)
 {
-	std::string errorMsg = user.getNickname() + " :Erroneus nickname";
+	std::string errorMsg = user.getNickname() + " :Erroneus nickname\n";
 	user.addMessage(errorMsg);
 	if (DEBUG)
 		std::cerr << errorMsg << std::endl;
@@ -56,7 +56,7 @@ void Messages::invalidNickName(User &user)
 
 void Messages::noSuchChannel(User &user, const std::string& channelName)
 {
-	std::string errorMsg = user.getNickname() + " " + channelName + " :No such channel";
+	std::string errorMsg = user.getNickname() + " " + channelName + " :No such channel\n";
 	user.addMessage(errorMsg);
 	if (DEBUG)
 		std::cerr << errorMsg << std::endl;
@@ -64,7 +64,7 @@ void Messages::noSuchChannel(User &user, const std::string& channelName)
 
 void Messages::notOnChannel(User &user, const std::string &channelName)
 {
-	std::string errorMsg = user.getNickname() + " " + channelName + " :You're not on that channel";
+	std::string errorMsg = user.getNickname() + " " + channelName + " :You're not on that channel\n";
 	user.addMessage(errorMsg);
 	if (DEBUG)
 		std::cerr << errorMsg << std::endl;
@@ -72,7 +72,7 @@ void Messages::notOnChannel(User &user, const std::string &channelName)
 
 void Messages::notOperator(User &user, const std::string &channelName)
 {
-	std::string errorMsg = user.getNickname() + " " + channelName + " :You're not channel operator";
+	std::string errorMsg = user.getNickname() + " " + channelName + " :You're not channel operator\n";
 	user.addMessage(errorMsg);
 	if (DEBUG)
 		std::cerr << errorMsg << std::endl;
@@ -80,7 +80,7 @@ void Messages::notOperator(User &user, const std::string &channelName)
 
 void Messages::alreadyOnChannel(User &user, const std::string &channelName)
 {
-	std::string errorMsg = user.getNickname() + " " + channelName + " :is already on channel";
+	std::string errorMsg = user.getNickname() + " " + channelName + " :is already on channel\n";
 	user.addMessage(errorMsg);
 	if (DEBUG)
 		std::cerr << errorMsg << std::endl;
