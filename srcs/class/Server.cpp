@@ -135,7 +135,7 @@ void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 
 	std::string response;// = "pong\n";
 	std::string receivedData(buffer);
-	std::cout << CYAN << "FULL " << it->fd << "# " << receivedData << " #\n" << END;
+//	std::cout << CYAN << "FULL " << it->fd << "# " << receivedData << " #\n" << END;
 
 	Commande cmd;
 	User *user;
