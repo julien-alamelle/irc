@@ -6,7 +6,7 @@
 #    By: marobert <marobert@student.42lyon.fr>      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2022/11/28 16:06:19 by marobert          #+#    #+#              #
-#    Updated: 2023/09/27 14:06:12 by jalamell         ###   ########.fr        #
+#    Updated: 2023/10/11 17:23:27 by jalamell         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -22,22 +22,31 @@ ERASE		=	\e[2K\r
 DIR_INCS	=	srcs/header
 SRC_DIR		=	srcs
 SRC_FILES	=	main.cpp class/Server.cpp class/ServerCommande.cpp class/User.cpp class/Channel.cpp class/Commande.cpp class/Messages.cpp
+BOT_FILES	=	bot.cpp class/Commande.cpp
 SRCS		=	$(addprefix $(SRC_DIR)/, $(SRC_FILES))
+BOT_SRCS	=	$(addprefix $(SRC_DIR)/, $(BOT_FILES))
 DIR_BUILD	=	.build/
 OBJS		=	$(patsubst %.cpp, $(DIR_BUILD)%.o, $(SRCS))
+BOT_OBJS	=	$(patsubst %.cpp, $(DIR_BUILD)%.o, $(BOT_SRCS))
 DEPS		=	$(patsubst %.cpp, $(DIR_BUILD)%.d, $(SRCS))
+BOT_DEPS	=	$(patsubst %.cpp, $(DIR_BUILD)%.d, $(BOT_SRCS))
 DEPS_FLAGS	=	-MMD -MP
 CC			=	c++
 RM			=	rm -rf
 CFLAGS		=	-std=c++98 -Wall -Wextra -Werror
-NAME		=	ircserv
+NAME		=	ircserv ircbot
 
 all:		$(NAME)
 
-$(NAME):	$(OBJS)
-			@printf "[$(CYAN)Compiling$(END)] % 25s" $(NAME)
-			@$(CC) $(CFLAGS) $(DIR_INCS:%=-I %) -o $(NAME) $(OBJS)
-			@printf "$(ERASE)[$(GREEN)Done$(END)] % 30s\n" $(NAME)
+ircserv:	$(OBJS)
+			@printf "[$(CYAN)Compiling$(END)] % 25s" $@
+			@$(CC) $(CFLAGS) $(DIR_INCS:%=-I %) -o $@ $(OBJS)
+			@printf "$(ERASE)[$(GREEN)Done$(END)] % 30s\n" $@
+
+ircbot:		$(BOT_OBJS)
+			@printf "[$(CYAN)Compiling$(END)] % 25s" $@
+			@$(CC) $(CFLAGS) $(DIR_INCS:%=-I %) -o $@ $(BOT_OBJS)
+			@printf "$(ERASE)[$(GREEN)Done$(END)] % 30s\n" $@
 
 -include $(DEPS)
 

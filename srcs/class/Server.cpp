@@ -67,7 +67,10 @@ void Server::start(int &keep)
 			{
 				std::vector<std::string> &toSend = this->_clients.find(it->fd)->second.getMessages();
 				for (std::vector<std::string>::iterator msg = toSend.begin(); msg != toSend.end(); ++msg)
+				{
+//					std::cerr << it->fd << "# " << *msg << " #\n";
 					send(it->fd, msg->c_str(), msg->size(), 0);
+				}
 				toSend.clear();
 			}
 
@@ -132,7 +135,7 @@ void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 
 	std::string response;// = "pong\n";
 	std::string receivedData(buffer);
-//	//std::cout << CYAN << "FULL " << it->fd << ": " << receivedData << END;
+	std::cout << CYAN << "FULL " << it->fd << "# " << receivedData << " #\n" << END;
 
 	Commande cmd;
 	User *user;
@@ -165,20 +168,23 @@ void Server::handleMessage(char *buffer, std::vector<pollfd>::iterator it)
 				this->cmdUser(cmd, user);
 			else if (cmd.getCommande() == "NICK")
 				this->cmdNick(cmd, user);
-			else if (cmd.getCommande() == "MODE")
-				this->cmdMode(cmd, user);
-			else if (cmd.getCommande() == "JOIN")
-				this->cmdJoin(cmd, user);
-			else if (cmd.getCommande() == "INVITE")
-				this->cmdInvi(cmd, user);
-			else if (cmd.getCommande() == "PRIVMSG")
-				this->cmdPMSG(cmd, user);
-			else if (cmd.getCommande() == "KICK")
-				this->cmdKick(cmd, user);
-			else if (cmd.getCommande() == "TOPIC")
-				this->cmdTopi(cmd, user);
-			else if (cmd.getCommande() == "QUIT")
-				this->cmdQuit(cmd, user);
+			else if (!user->getNickname().empty() && !user->getUsername().empty())
+			{
+				if (cmd.getCommande() == "MODE")
+					this->cmdMode(cmd, user);
+				else if (cmd.getCommande() == "JOIN")
+					this->cmdJoin(cmd, user);
+				else if (cmd.getCommande() == "INVITE")
+					this->cmdInvi(cmd, user);
+				else if (cmd.getCommande() == "PRIVMSG")
+					this->cmdPMSG(cmd, user);
+				else if (cmd.getCommande() == "KICK")
+					this->cmdKick(cmd, user);
+				else if (cmd.getCommande() == "TOPIC")
+					this->cmdTopi(cmd, user);
+				else if (cmd.getCommande() == "QUIT")
+					this->cmdQuit(cmd, user);
+			}
 		}
 		else
 		{

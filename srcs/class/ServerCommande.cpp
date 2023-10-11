@@ -46,6 +46,10 @@ void Server::cmdNick(const Commande &cmd, User *user)
 {
 	if (cmd.getParams().size() != 1)
 		Messages::needMoreParams(*user, cmd);
+	else if (this->findUser(cmd.getParams()[0]))
+	{
+		user->addMessage("433 :Nickname is already in use\r\n");
+	}
 	else
 	{
 		try

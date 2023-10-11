@@ -32,7 +32,7 @@ void Messages::needMoreParams(User &user, const Commande& cmd)
 
 void Messages::incorrectPassword(User &user)
 {
-	std::string errorMsg = user.getNickname() + " :Password incorrect\n";
+	std::string errorMsg = "464 :Password incorrect\n";
 	user.addMessage(errorMsg);
 	if (DEBUG)
 		std::cerr << errorMsg << std::endl;
@@ -40,7 +40,7 @@ void Messages::incorrectPassword(User &user)
 
 void Messages::alreadyRegistered(User &user)
 {
-	std::string errorMsg = user.getNickname() + " :You may not reregister\n";
+	std::string errorMsg = ":" + user.getNickname() + " 462 :You may not reregister\n";
 	user.addMessage(errorMsg);
 	if (DEBUG)
 		std::cerr << errorMsg << std::endl;

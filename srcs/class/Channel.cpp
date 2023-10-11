@@ -80,6 +80,8 @@ void	Channel::delUser(User *user)
 	{
 		if (user == *it)
 		{
+			for (vecusit it2 = this->_connectedUsers.begin(); it2 < this->_connectedUsers.end(); ++it2)
+				(*it2)->addMessage(":" + user->getNickname() + " PART " + this->_name + "\r\n");
 			this->_connectedUsers.erase(it);
 			this->setOperator(user, false);
 			return;
