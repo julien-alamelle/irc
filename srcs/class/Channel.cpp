@@ -187,6 +187,9 @@ void	Channel::setOperator(User *user, bool status)
 			if (user == *it)
 			{
 				this->_operators.push_back(user);
+				std::string response = ":ircsrv MODE " + this->_name + " +o " + user->getNickname() + "\r\n";
+				for (vecusit it = this->_connectedUsers.begin(); it != this->_connectedUsers.end(); ++it)
+					(*it)->addMessage(response);
 				return;
 			}
 		}
@@ -195,8 +198,12 @@ void	Channel::setOperator(User *user, bool status)
 	{
 		for (vecusit it = this->_operators.begin(); it < this->_operators.end(); ++it)
 		{
-			if (user == *it)
+			if (user == *it) {
 				this->_operators.erase(it);
+				std::string response = ":ircsrv MODE " + this->_name + " -o " + user->getNickname() + "\r\n";
+				for (vecusit it = this->_connectedUsers.begin(); it != this->_connectedUsers.end(); ++it)
+					(*it)->addMessage(response);
+			}
 		}
 		if (this->_operators.empty() && !this->_connectedUsers.empty())
 		{

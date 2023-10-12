@@ -159,7 +159,6 @@ void Server::cmdMode(const Commande &cmd, User *user)
 				//std::cout << "MODE: the user does not exist " << cmd.getParams().at(nbARG) << std::endl;
 				return;
 			}
-			modeReply(&(channelIT->second), reply, mode, *it, cmd.getParams().at(nbARG));
 			channelIT->second.setOperator(opArg, mode);
 			++nbARG;
 			break;
