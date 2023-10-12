@@ -34,9 +34,12 @@ DEPS_FLAGS	=	-MMD -MP
 CC			=	c++
 RM			=	rm -rf
 CFLAGS		=	-std=c++98 -Wall -Wextra -Werror
-NAME		=	ircserv ircbot
+NAME		=	ircserv
+BONUS		=	ircbot
 
 all:		$(NAME)
+
+bonus:		$(BONUS)
 
 ircserv:	$(OBJS)
 			@printf "[$(CYAN)Compiling$(END)] % 25s" $@
@@ -62,7 +65,9 @@ clean:
 
 fclean:		clean
 			@$(RM) $(NAME)
+			@$(RM) $(BONUS)
 			@printf "[$(RED)Deleted$(END)] % 27s\n" $(NAME)
+			@printf "[$(RED)Deleted$(END)] % 27s\n" $(BONUS)
 
 re:			fclean
 			@make all
