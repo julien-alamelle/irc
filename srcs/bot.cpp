@@ -52,6 +52,10 @@ bool handleMessage(int fd)
 		buff[i] = 0;
 		s = s + buff;
 	}
+	if (i == 0) {
+		std::cout << "server disconnected" << std::endl;
+		return false;
+	}
 	std::string line = getSubstr(s);
 	while (!line.empty())
 	{
@@ -108,10 +112,13 @@ int main(int ac, char **av)
 	while (keep && poll(&srv,1,-1) > 0) {
 		if (srv.revents & (POLLERR | POLLHUP))
 			keep = false;
-		else if (srv.revents & POLLIN)
+		else if (srv.revents & POLLIN) {
 			keep = handleMessage(sock);
+		}
 		else if (srv.revents & POLLOUT)
 			sendMsg("",sock);
+		else
+			std::cout << "unknown event\n";
 	}
 	close(sock);
 	sendMsg("");
